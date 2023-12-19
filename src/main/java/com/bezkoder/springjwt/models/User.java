@@ -1,7 +1,13 @@
 package com.bezkoder.springjwt.models;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -9,81 +15,112 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
-@Table(name = "users", 
-    uniqueConstraints = { 
-      @UniqueConstraint(columnNames = "username"),
-      @UniqueConstraint(columnNames = "email") 
-    })
+@Table(name = "users", uniqueConstraints = { @UniqueConstraint(columnNames = "username"),
+		@UniqueConstraint(columnNames = "email") })
 public class User {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-  @NotBlank
-  @Size(max = 20)
-  private String username;
+	@NotBlank
+	@Size(max = 20)
+	private String username;
 
-  @NotBlank
-  @Size(max = 50)
-  @Email
-  private String email;
+	@NotBlank
+	@Size(max = 50)
+	@Email
+	private String email;
 
-  @NotBlank
-  @Size(max = 120)
-  private String password;
+	@NotBlank
+	@Size(max = 120)
+	private String password;
 
-  @ManyToMany(fetch = FetchType.LAZY)
-  @JoinTable(  name = "user_roles", 
-        joinColumns = @JoinColumn(name = "user_id"), 
-        inverseJoinColumns = @JoinColumn(name = "role_id"))
-  private Set<Role> roles = new HashSet<>();
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+	private Set<Role> roles = new HashSet<>();
 
-  public User() {
-  }
+	private String name;
 
-  public User(String username, String email, String password) {
-    this.username = username;
-    this.email = email;
-    this.password = password;
-  }
+	@JsonManagedReference
+	@ManyToMany(mappedBy = "users")
+	private List<StockOverview> stockOverviews;
 
-  public Long getId() {
-    return id;
-  }
+	public User() {
+	}
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+	public User(String username, String email, String password) {
+		this.username = username;
+		this.email = email;
+		this.password = password;
+	}
 
-  public String getUsername() {
-    return username;
-  }
+	public Long getId() {
+		return id;
+	}
 
-  public void setUsername(String username) {
-    this.username = username;
-  }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-  public String getEmail() {
-    return email;
-  }
+	public String getUsername() {
+		return username;
+	}
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-  public String getPassword() {
-    return password;
-  }
+	public String getEmail() {
+		return email;
+	}
 
-  public void setPassword(String password) {
-    this.password = password;
-  }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-  public Set<Role> getRoles() {
-    return roles;
-  }
+	public String getPassword() {
+		return password;
+	}
 
-  public void setRoles(Set<Role> roles) {
-    this.roles = roles;
-  }
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public Set<Role> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(Set<Role> roles) {
+		this.roles = roles;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public List<StockOverview> getStockOverviews() {
+		return stockOverviews;
+	}
+
+	public void setStockOverviews(List<StockOverview> stockOverviews) {
+		this.stockOverviews = stockOverviews;
+	}
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
+
+	public String toSimpleString() {
+		String s = "";
+		for (int i = 0; i < stockOverviews.size(); i++) {
+			StockOverview st = stockOverviews.get(i);
+			s = s + ", [" + st.getSymbol() + ", " + st.getId() + ", " + st.getMarketCapitalization() + "]";
+		}
+		return "id: " + id + ", username: " + username + ", stockOverviews: " + s + ", email: " + email;
+	}
 }
