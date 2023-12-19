@@ -5,11 +5,12 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.bezkoder.springjwt.models.StockName;
 
 //import com.ming.boot.model.StockName;
-
+@Repository
 public interface StockNameRepository extends JpaRepository<StockName, String> {
 	@Query("SELECT s FROM StockName s WHERE LOWER(s.symbol) LIKE LOWER(CONCAT('%', :query, '%')) "
 			+ "OR LOWER(s.companyName) LIKE LOWER(CONCAT('%', :query, '%')) "

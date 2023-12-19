@@ -192,6 +192,13 @@ public class StockOverview {
     )
     private List<User> users;
     
+    private Date updateAt;
+    
+    private Date createdAt;
+    
+    private String createdBy;
+    
+    
 	public Long getId() {
 		return id;
 	}
@@ -599,6 +606,30 @@ public class StockOverview {
 
 	public void setUsers(List<User> users) {
 		this.users = users;
+	}
+
+	public Date getUpdateAt() {
+		return updateAt;
+	}
+
+	public void setUpdateAt(Date updateAt) {
+		this.updateAt = updateAt;
+	}
+
+	public Date getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(Date createdAt) {
+		this.createdAt = createdAt;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
 	}
 
 	@Override

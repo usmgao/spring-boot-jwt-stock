@@ -1,5 +1,8 @@
 package com.bezkoder.springjwt.models;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -75,9 +78,14 @@ public class StockName {
 
 	// toString() method (optional)
 
+//	@Override
+//	public String toString() {
+//		return "StockEntity{" + "symbol='" + symbol + '\'' + ", companyName='" + companyName + '\'' + ", industry='"
+//				+ industry + '\'' + ", marketCap=" + marketCap + '}';
+//	}
+	
 	@Override
-	public String toString() {
-		return "StockEntity{" + "symbol='" + symbol + '\'' + ", companyName='" + companyName + '\'' + ", industry='"
-				+ industry + '\'' + ", marketCap=" + marketCap + '}';
-	}
+    public String toString() {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+    }
 }
