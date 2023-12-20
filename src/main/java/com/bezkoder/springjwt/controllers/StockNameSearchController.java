@@ -19,7 +19,7 @@ import com.bezkoder.springjwt.repository.StockNameRepository;
 
 /* Created by Ming  */
 @RestController
-//@CrossOrigin("http://localhost:3000")
+@CrossOrigin("http://localhost:8081")
 public class StockNameSearchController {
 
 	@Autowired

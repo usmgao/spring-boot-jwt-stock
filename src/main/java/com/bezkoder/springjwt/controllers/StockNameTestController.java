@@ -18,7 +18,7 @@ import com.bezkoder.springjwt.repository.StockNameRepository;
 
 @RestController
 @RequestMapping("/api/stocks")
-//@CrossOrigin(origins = "http://localhost:3000") // Replace with the actual origin of your React app
+@CrossOrigin(origins = "http://localhost:8081") // Replace with the actual origin of your React app
 public class StockNameTestController {
 	@Autowired
 	private StockNameRepository stockNameRepository;
