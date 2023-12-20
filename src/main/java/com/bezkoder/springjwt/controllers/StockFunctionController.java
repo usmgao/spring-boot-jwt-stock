@@ -42,7 +42,7 @@ import com.bezkoder.springjwt.models.User;
 
 /* Created by Ming  */
 @RestController
-//@CrossOrigin("http://localhost:3000")
+@CrossOrigin("http://localhost:8081")
 public class StockFunctionController {
 
 	@Autowired
@@ -199,9 +199,10 @@ public class StockFunctionController {
 							return HelpUtil.ErrorFromServerToClint("JSON object is empty.");
 						}
 					} catch (Exception e) {
+						HelpUtil.ErrorServerLog("exception message: " + e.getMessage()+", cause: "+e.getCause());
 						return HelpUtil.ErrorFromServerToClint("exception message: " + e.getMessage() + ", cause: " + e.getCause());
 					}
-
+					HelpUtil.ErrorServerLog("before saveApiResult userId, result: " + userId +", result: "+result);
 					saveApiResult(userId, result);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -211,7 +212,7 @@ public class StockFunctionController {
 		} else
 			result = HelpUtil.ErrorFromServerToClint("functionName: "+ functionName +" unknow");
 
-		// HelpUtil.ErrorServerLog("getStockFunctionResponseValue result: "+result);
+		HelpUtil.ErrorServerLog("getStockFunctionResponseValue result: "+result);
 
 		// load all symbol by id
 		HelpUtil.ErrorFromServerToClint("load all symbol by user id");
@@ -265,6 +266,8 @@ public class StockFunctionController {
 	}
 
 	private boolean saveApiResult(String userName, String jsonString) {
+		HelpUtil.ErrorServerLog("in saveApiResult userName, jsonString: " + userName +", jsonString: "+jsonString);
+		
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		// Convert JSON string to Java object
@@ -290,11 +293,11 @@ public class StockFunctionController {
 			// StockOverview newOne = newOverview(overview);
 			// HelpUtil.ErrorServerLog("saveApiResult symbol: " + newOne.getSymbol());
 		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
+			HelpUtil.ErrorServerLog("in saveApiResult JsonMappingException cause: " + e.getCause() +", message: "+e.getMessage());
 			e.printStackTrace();
 			return false;
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
+			HelpUtil.ErrorServerLog("in saveApiResult JsonProcessingException cause: " + e.getCause() +", message: "+e.getMessage());
 			e.printStackTrace();
 			return false;
 		}
