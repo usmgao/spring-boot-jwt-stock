@@ -1,5 +1,6 @@
 package com.bezkoder.springjwt.models;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +44,7 @@ public class User {
 
 	@JsonManagedReference
 	@ManyToMany(mappedBy = "users")
-	private List<StockOverview> stockOverviews;
+	private List<StockOverview> stockOverviews = new ArrayList<>();
 
 	public User() {
 	}
@@ -103,6 +104,9 @@ public class User {
 	}
 
 	public List<StockOverview> getStockOverviews() {
+		if (stockOverviews == null) {
+			stockOverviews = new ArrayList<>();
+		}
 		return stockOverviews;
 	}
 

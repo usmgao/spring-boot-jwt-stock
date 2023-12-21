@@ -126,7 +126,7 @@ public class StockFunctionController {
 	}
 
 	@GetMapping("/stock")
-	@Transactional
+//	@Transactional
 	public String getStockFunctionResponseValue(@RequestParam String symbol, @RequestParam String functionName,
 			@RequestParam String userId) {
 		HelpUtil.ErrorServerLog("========= from /stock path ======== " + LocalDateTime.now());
@@ -170,7 +170,7 @@ public class StockFunctionController {
 				// Step 3: If the stock does not exist, you might handle it accordingly
 				HelpUtil.ErrorFromServerToClint("Step 3: If the stock does not exist, you might handle it accordingly");
 				try {
-					HelpUtil.ErrorServerLog("getStockFunctionResponseValue go online to get data: " + symbol);
+					//HelpUtil.ErrorServerLog("getStockFunctionResponseValue go online to get data: " + symbol);
 					result = OVERVIEW(symbol);
 					if ((result == null) || result.equals("null") || (result.length() == 0)) {
 						HelpUtil.ErrorServerLog("api call result is null");
@@ -178,7 +178,7 @@ public class StockFunctionController {
 					}
 
 					// make sure it is not a 25/day over run information
-					HelpUtil.ErrorServerLog("getStockFunctionResponseValue get online result: " + result);
+					//HelpUtil.ErrorServerLog("getStockFunctionResponseValue get online result: " + result);
 					try {
 						ObjectMapper objectMapper = new ObjectMapper();
 						JsonNode jsonNode = objectMapper.readTree(result);
@@ -202,7 +202,8 @@ public class StockFunctionController {
 						HelpUtil.ErrorServerLog("exception message: " + e.getMessage()+", cause: "+e.getCause());
 						return HelpUtil.ErrorFromServerToClint("exception message: " + e.getMessage() + ", cause: " + e.getCause());
 					}
-					HelpUtil.ErrorServerLog("before saveApiResult userId, result: " + userId +", result: "+result);
+					
+					//HelpUtil.ErrorServerLog("before saveApiResult userId, result: " + userId +", result: "+result);
 					saveApiResult(userId, result);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -237,7 +238,7 @@ public class StockFunctionController {
 	}
 
 	private String OVERVIEW(String symbol) throws IOException, InterruptedException {
-		HelpUtil.ErrorServerLog("api OVERVIEW: " + symbol);
+		//HelpUtil.ErrorServerLog("api OVERVIEW: " + symbol);
 		StringBuilder sb = new StringBuilder();
 		String requestStr = sb.append(StockApiConstents.BASE_URL_AlphaVantage).append("OVERVIEW").append("&apikey=")
 				.append(StockApiConstents.MY_KEY_AlphaVantage).append("&symbol=").append(symbol).toString();
@@ -266,29 +267,35 @@ public class StockFunctionController {
 	}
 
 	private boolean saveApiResult(String userName, String jsonString) {
-		HelpUtil.ErrorServerLog("in saveApiResult userName, jsonString: " + userName +", jsonString: "+jsonString);
+		//HelpUtil.ErrorServerLog("in saveApiResult userName, jsonString: " + userName +", jsonString: "+jsonString);
 		
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		// Convert JSON string to Java object
 		try {
 			StockOverview overview = objectMapper.readValue(jsonString, StockOverview.class);
-			if (overview == null)
+			if (overview == null) {
+				HelpUtil.ErrorServerLog("overview is null");
 				return false;
-
-			// HelpUtil.ErrorServerLog("add 3 extra data to entity");
+			}
+			HelpUtil.ErrorServerLog("add 6 extra data to entity");
+			overview.setCreatedBy(userName);
 			overview.setUpdateBy(userName);
 			overview.setUserId(userName);
+			overview.setCreatedAt(new Date());
+			overview.setUpdateAt(new Date());
 			overview.setUpdateDate(new Date());
 
 			User user = userRepository.findByUsername(userName)
 					.orElseThrow(() -> new IllegalArgumentException("User not found"));
-
+			HelpUtil.ErrorServerLog("saveApiResult:user:"+user);
+			
 			overview.getUsers().add(user);
-
+			HelpUtil.ErrorServerLog("add overview with User");
+			
 			// Save the StockOverview (and cascade the save to associated users)
 			stockOverviewRepository.save(overview);
-
+			HelpUtil.ErrorServerLog("update overview with User");
 			// HelpUtil.ErrorServerLog("before call newOverview");
 			// StockOverview newOne = newOverview(overview);
 			// HelpUtil.ErrorServerLog("saveApiResult symbol: " + newOne.getSymbol());

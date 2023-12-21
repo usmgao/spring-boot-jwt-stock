@@ -11,6 +11,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.JoinColumn;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 //
@@ -29,176 +30,171 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Entity
 public class StockOverview {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+	@Id
+	@GeneratedValue
+	private Long id;
 
-    @JsonProperty("Symbol")
-    @Column(unique = true)
-    private String symbol;
+	@JsonProperty("Symbol")
+	@Column(unique = true)
+	private String symbol;
 
-    @JsonProperty("AssetType")
-    private String assetType;
+	@JsonProperty("AssetType")
+	private String assetType;
 
-    @JsonProperty("Name")
-    private String name;
+	@JsonProperty("Name")
+	private String name;
 
-    @JsonProperty("Description")
-    @Column(length = 1255)
-    private String description;
+	@JsonProperty("Description")
+	@Column(length = 1255)
+	private String description;
 
-    @JsonProperty("CIK")
-    private String cIK;
+	@JsonProperty("CIK")
+	private String cIK;
 
-    @JsonProperty("Exchange")
-    private String exchange;
+	@JsonProperty("Exchange")
+	private String exchange;
 
-    @JsonProperty("Currency")
-    private String currency;
+	@JsonProperty("Currency")
+	private String currency;
 
-    @JsonProperty("Country")
-    private String country;
+	@JsonProperty("Country")
+	private String country;
 
-    @JsonProperty("Sector")
-    private String sector;
+	@JsonProperty("Sector")
+	private String sector;
 
-    @JsonProperty("Industry")
-    private String industry;
+	@JsonProperty("Industry")
+	private String industry;
 
-    @JsonProperty("Address")
-    private String address;
+	@JsonProperty("Address")
+	private String address;
 
-    @JsonProperty("FiscalYearEnd")
-    private String fiscalYearEnd;
+	@JsonProperty("FiscalYearEnd")
+	private String fiscalYearEnd;
 
-    @JsonProperty("LatestQuarter")
-    private String latestQuarter;
+	@JsonProperty("LatestQuarter")
+	private String latestQuarter;
 
-    @JsonProperty("MarketCapitalization")
-    private String marketCapitalization;
+	@JsonProperty("MarketCapitalization")
+	private String marketCapitalization;
 
-    @JsonProperty("EBITDA")
-    private String eBITDA;
+	@JsonProperty("EBITDA")
+	private String eBITDA;
 
-    @JsonProperty("PERatio")
-    private String pERatio;
+	@JsonProperty("PERatio")
+	private String pERatio;
 
-    @JsonProperty("PEGRatio")
-    private String pEGRatio;
+	@JsonProperty("PEGRatio")
+	private String pEGRatio;
 
-    @JsonProperty("BookValue")
-    private String bookValue;
+	@JsonProperty("BookValue")
+	private String bookValue;
 
-    @JsonProperty("DividendPerShare")
-    private String dividendPerShare;
+	@JsonProperty("DividendPerShare")
+	private String dividendPerShare;
 
-    @JsonProperty("DividendYield")
-    private String dividendYield;
+	@JsonProperty("DividendYield")
+	private String dividendYield;
 
-    @JsonProperty("EPS")
-    private String ePS;
+	@JsonProperty("EPS")
+	private String ePS;
 
-    @JsonProperty("RevenuePerShareTTM")
-    private String revenuePerShareTTM;
+	@JsonProperty("RevenuePerShareTTM")
+	private String revenuePerShareTTM;
 
-    @JsonProperty("ProfitMargin")
-    private String profitMargin;
+	@JsonProperty("ProfitMargin")
+	private String profitMargin;
 
-    @JsonProperty("OperatingMarginTTM")
-    private String operatingMarginTTM;
+	@JsonProperty("OperatingMarginTTM")
+	private String operatingMarginTTM;
 
-    @JsonProperty("ReturnOnAssetsTTM")
-    private String returnOnAssetsTTM;
+	@JsonProperty("ReturnOnAssetsTTM")
+	private String returnOnAssetsTTM;
 
-    @JsonProperty("ReturnOnEquityTTM")
-    private String returnOnEquityTTM;
+	@JsonProperty("ReturnOnEquityTTM")
+	private String returnOnEquityTTM;
 
-    @JsonProperty("RevenueTTM")
-    private String revenueTTM;
+	@JsonProperty("RevenueTTM")
+	private String revenueTTM;
 
-    @JsonProperty("GrossProfitTTM")
-    private String grossProfitTTM;
+	@JsonProperty("GrossProfitTTM")
+	private String grossProfitTTM;
 
-    @JsonProperty("DilutedEPSTTM")
-    private String dilutedEPSTTM;
+	@JsonProperty("DilutedEPSTTM")
+	private String dilutedEPSTTM;
 
-    @JsonProperty("QuarterlyEarningsGrowthYOY")
-    private String quarterlyEarningsGrowthYOY;
+	@JsonProperty("QuarterlyEarningsGrowthYOY")
+	private String quarterlyEarningsGrowthYOY;
 
-    @JsonProperty("QuarterlyRevenueGrowthYOY")
-    private String quarterlyRevenueGrowthYOY;
+	@JsonProperty("QuarterlyRevenueGrowthYOY")
+	private String quarterlyRevenueGrowthYOY;
 
-    @JsonProperty("AnalystTargetPrice")
-    private String analystTargetPrice;
+	@JsonProperty("AnalystTargetPrice")
+	private String analystTargetPrice;
 
-    @JsonProperty("TrailingPE")
-    private String trailingPE;
+	@JsonProperty("TrailingPE")
+	private String trailingPE;
 
-    @JsonProperty("ForwardPE")
-    private String forwardPE;
+	@JsonProperty("ForwardPE")
+	private String forwardPE;
 
-    @JsonProperty("PriceToSalesRatioTTM")
-    private String priceToSalesRatioTTM;
+	@JsonProperty("PriceToSalesRatioTTM")
+	private String priceToSalesRatioTTM;
 
-    @JsonProperty("PriceToBookRatio")
-    private String priceToBookRatio;
+	@JsonProperty("PriceToBookRatio")
+	private String priceToBookRatio;
 
-    @JsonProperty("EVToRevenue")
-    private String eVToRevenue;
+	@JsonProperty("EVToRevenue")
+	private String eVToRevenue;
 
-    @JsonProperty("EVToEBITDA")
-    private String eVToEBITDA;
+	@JsonProperty("EVToEBITDA")
+	private String eVToEBITDA;
 
-    @JsonProperty("Beta")
-    private String beta;
+	@JsonProperty("Beta")
+	private String beta;
 
-    @JsonProperty("52WeekHigh")
-    private String _52WeekHigh;
+	@JsonProperty("52WeekHigh")
+	private String _52WeekHigh;
 
-    @JsonProperty("52WeekLow")
-    private String _52WeekLow;
+	@JsonProperty("52WeekLow")
+	private String _52WeekLow;
 
-    @JsonProperty("50DayMovingAverage")
-    private String _50DayMovingAverage;
+	@JsonProperty("50DayMovingAverage")
+	private String _50DayMovingAverage;
 
-    @JsonProperty("200DayMovingAverage")
-    private String _200DayMovingAverage;
+	@JsonProperty("200DayMovingAverage")
+	private String _200DayMovingAverage;
 
-    @JsonProperty("SharesOutstanding")
-    private String sharesOutstanding;
+	@JsonProperty("SharesOutstanding")
+	private String sharesOutstanding;
 
-    @JsonProperty("DividendDate")
-    private String dividendDate;
+	@JsonProperty("DividendDate")
+	private String dividendDate;
 
-    @JsonProperty("ExDividendDate")
-    private String exDividendDate;
+	@JsonProperty("ExDividendDate")
+	private String exDividendDate;
 
-    @JsonProperty("UpdateBy")
-    private String updateBy;
+	@JsonProperty("UpdateBy")
+	private String updateBy;
 
-    @JsonProperty("UpdateDate")
-    private Date updateDate;
-    
-    @JsonProperty("UserId")
-    private String userId;
+	@JsonProperty("UpdateDate")
+	private Date updateDate;
 
-    @JsonBackReference
-    @JsonProperty("StockOverview_User")
-    @ManyToMany
-    @JoinTable(
-        name = "StockOverview_User",
-        joinColumns = @JoinColumn(name = "stockOverview_id"),
-        inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private List<User> users;
-    
-    private Date updateAt;
-    
-    private Date createdAt;
-    
-    private String createdBy;
-    
-    
+	@JsonProperty("UserId")
+	private String userId;
+
+	@JsonBackReference
+	@JsonProperty("StockOverview_User")
+	@ManyToMany
+	@JoinTable(name = "StockOverview_User", joinColumns = @JoinColumn(name = "stockOverview_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+	private List<User> users = new ArrayList<>();
+
+	private Date updateAt;
+
+	private Date createdAt;
+
+	private String createdBy;
+
 	public Long getId() {
 		return id;
 	}
@@ -575,7 +571,6 @@ public class StockOverview {
 		this.exDividendDate = exDividendDate;
 	}
 
-
 	public String getUpdateBy() {
 		return updateBy;
 	}
@@ -601,6 +596,9 @@ public class StockOverview {
 	}
 
 	public List<User> getUsers() {
+		if (users == null) {
+			users = new ArrayList<>();
+		}
 		return users;
 	}
 
@@ -633,7 +631,7 @@ public class StockOverview {
 	}
 
 	@Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
-    }
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+	}
 }

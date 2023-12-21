@@ -45,12 +45,12 @@ public class StockNameTestController {
 	public ResponseEntity<List<StockName>> searchBySymbol(@RequestParam String symbol) {
 		System.out.println("searchBySymbol input: " + symbol);
 		List<StockName> matchingStocks = stockNameRepository.findBySymbolLike(symbol + "%");
-		if(symbol.length() > 1) {
-			System.out.println("================ stocks size: " + matchingStocks.size()+ "  ============================");	
-			for(StockName s : matchingStocks) {
-				System.out.println("stock name result: " + s.toString());				
-			}
-		}
+//		if(symbol.length() > 1) {
+//			System.out.println("================ stocks size: " + matchingStocks.size()+ "  ============================");	
+//			for(StockName s : matchingStocks) {
+//				System.out.println("stock name result: " + s.toString());				
+//			}
+//		}
 		return ResponseEntity.ok(matchingStocks);
 	}
 }
