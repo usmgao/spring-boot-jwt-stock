@@ -1,6 +1,7 @@
 package com.bezkoder.springjwt.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
@@ -183,8 +184,7 @@ public class StockOverview {
 	@JsonProperty("UserId")
 	private String userId;
 
-	@JsonBackReference
-	@JsonProperty("StockOverview_User")
+	@JsonIgnore
 	@ManyToMany
 	@JoinTable(name = "StockOverview_User", joinColumns = @JoinColumn(name = "stockOverview_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
 	private List<User> users = new ArrayList<>();

@@ -213,7 +213,7 @@ public class StockFunctionController {
 		} else
 			result = HelpUtil.ErrorFromServerToClint("functionName: "+ functionName +" unknow");
 
-		HelpUtil.ErrorServerLog("getStockFunctionResponseValue result: "+result);
+		HelpUtil.ErrorServerLog("getStockFunctionResponseValue result");
 
 		// load all symbol by id
 		HelpUtil.ErrorFromServerToClint("load all symbol by user id");
@@ -237,6 +237,58 @@ public class StockFunctionController {
 		return result;
 	}
 
+	private boolean saveApiResult(String userName, String jsonString) {
+		//HelpUtil.ErrorServerLog("in saveApiResult userName, jsonString: " + userName +", jsonString: "+jsonString);
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		// Convert JSON string to Java object
+		try {
+			StockOverview overview = objectMapper.readValue(jsonString, StockOverview.class);
+			if (overview == null) {
+				HelpUtil.ErrorServerLog("overview is null");
+				return false;
+			}
+			HelpUtil.ErrorServerLog("add 6 extra data to entity overview: "+overview);
+			overview.setCreatedBy(userName);
+			overview.setUpdateBy(userName);
+			overview.setUserId(userName);
+			overview.setCreatedAt(new Date());
+			overview.setUpdateAt(new Date());
+			overview.setUpdateDate(new Date());
+
+			// add user to overview
+			User user = userRepository.findByUsername(userName)
+					.orElseThrow(() -> new IllegalArgumentException("User not found"));
+			HelpUtil.ErrorServerLog("saveApiResult:user:"+user);
+			
+			overview.getUsers().add(user);
+			HelpUtil.ErrorServerLog("add overview with User overview: "+overview);
+			
+			// Save the StockOverview (and cascade the save to associated users)
+			StockOverview newOverview = stockOverviewRepository.save(overview);
+			HelpUtil.ErrorServerLog("update overview with User newOverview: "+newOverview);
+			
+			// add overview to user
+			List<StockOverview> userOverviews = user.getStockOverviews();
+			userOverviews.add(newOverview);
+			
+			// HelpUtil.ErrorServerLog("before call newOverview");
+			// StockOverview newOne = newOverview(overview);
+			// HelpUtil.ErrorServerLog("saveApiResult symbol: " + newOne.getSymbol());
+		} catch (JsonMappingException e) {
+			HelpUtil.ErrorServerLog("in saveApiResult JsonMappingException cause: " + e.getCause() +", message: "+e.getMessage());
+			e.printStackTrace();
+			return false;
+		} catch (JsonProcessingException e) {
+			HelpUtil.ErrorServerLog("in saveApiResult JsonProcessingException cause: " + e.getCause() +", message: "+e.getMessage());
+			e.printStackTrace();
+			return false;
+		}
+
+		return true;
+	}
+	
 	private String OVERVIEW(String symbol) throws IOException, InterruptedException {
 		//HelpUtil.ErrorServerLog("api OVERVIEW: " + symbol);
 		StringBuilder sb = new StringBuilder();
@@ -264,51 +316,5 @@ public class StockFunctionController {
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 		HelpUtil.ErrorServerLog(apiCo + ": " + response.body());
 		return response.body().toString();
-	}
-
-	private boolean saveApiResult(String userName, String jsonString) {
-		//HelpUtil.ErrorServerLog("in saveApiResult userName, jsonString: " + userName +", jsonString: "+jsonString);
-		
-		ObjectMapper objectMapper = new ObjectMapper();
-
-		// Convert JSON string to Java object
-		try {
-			StockOverview overview = objectMapper.readValue(jsonString, StockOverview.class);
-			if (overview == null) {
-				HelpUtil.ErrorServerLog("overview is null");
-				return false;
-			}
-			HelpUtil.ErrorServerLog("add 6 extra data to entity");
-			overview.setCreatedBy(userName);
-			overview.setUpdateBy(userName);
-			overview.setUserId(userName);
-			overview.setCreatedAt(new Date());
-			overview.setUpdateAt(new Date());
-			overview.setUpdateDate(new Date());
-
-			User user = userRepository.findByUsername(userName)
-					.orElseThrow(() -> new IllegalArgumentException("User not found"));
-			HelpUtil.ErrorServerLog("saveApiResult:user:"+user);
-			
-			overview.getUsers().add(user);
-			HelpUtil.ErrorServerLog("add overview with User");
-			
-			// Save the StockOverview (and cascade the save to associated users)
-			stockOverviewRepository.save(overview);
-			HelpUtil.ErrorServerLog("update overview with User");
-			// HelpUtil.ErrorServerLog("before call newOverview");
-			// StockOverview newOne = newOverview(overview);
-			// HelpUtil.ErrorServerLog("saveApiResult symbol: " + newOne.getSymbol());
-		} catch (JsonMappingException e) {
-			HelpUtil.ErrorServerLog("in saveApiResult JsonMappingException cause: " + e.getCause() +", message: "+e.getMessage());
-			e.printStackTrace();
-			return false;
-		} catch (JsonProcessingException e) {
-			HelpUtil.ErrorServerLog("in saveApiResult JsonProcessingException cause: " + e.getCause() +", message: "+e.getMessage());
-			e.printStackTrace();
-			return false;
-		}
-
-		return true;
 	}
 }
