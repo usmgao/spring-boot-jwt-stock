@@ -7,7 +7,7 @@ import PropTypes from "prop-types";
 const ColumnSelector = ({
   columns,
   selectedColumns,
-  //onColumnChange,
+  onColumnChange,
   onCancel,
   onConfirm,
 }) => {

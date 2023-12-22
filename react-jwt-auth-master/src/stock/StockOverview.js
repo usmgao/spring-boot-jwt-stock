@@ -50,7 +50,9 @@ const StockOverview = ({ userId, symbol }) => {
       console.log("StockOverview stockData: " + stockData);
 
       //const stockDataStr = JSON.stringify(stockData);
-      //console.log("StockOverview stringify stockData: " + stockDataStr);
+      console.log(
+        "StockOverview stringify stockData: " + JSON.stringify(stockData)
+      );
 
       // Use Object.prototype.hasOwnProperty
       if (Object.prototype.hasOwnProperty.call(stockData, "ErrorFromService")) {
