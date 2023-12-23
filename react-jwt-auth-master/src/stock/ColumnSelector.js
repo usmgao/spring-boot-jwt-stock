@@ -21,7 +21,7 @@ const ColumnSelector = ({
       ? tempSelectedColumns.filter((selected) => selected !== column)
       : [...tempSelectedColumns, column];
 
-    setTempSelectedColumns(updatedColumns);
+    setTempSelectedColumns(updatedColumns.filter((col) => isNaN(col))); // Filter out numbers);
   };
 
   const handleCancel = () => {

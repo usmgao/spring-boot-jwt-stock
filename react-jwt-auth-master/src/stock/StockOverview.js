@@ -55,6 +55,13 @@ const StockOverview = ({ userId, symbol }) => {
         setError(errorValue);
       } else {
         setStockOverviewInfo({ data: stockData });
+
+        // Check if stockData is an array and take the first element
+        //const stockDataObject = Array.isArray(stockData)
+        //  ? stockData[0]
+        //  : stockData;
+        // Continue processing the stockData object
+        //setStockOverviewInfo({ data: stockDataObject });
       }
     } catch (error) {
       console.error("Error loading stock data:", error);
