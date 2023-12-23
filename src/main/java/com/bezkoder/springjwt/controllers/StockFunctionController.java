@@ -136,17 +136,18 @@ public class StockFunctionController {
 		if ((symbol == null) || symbol.equals("null") || (symbol.length() == 0)) {
 			HelpUtil.ErrorServerLog("getStockFunctionResponseValue: input symbol is null");
 			return HelpUtil.ErrorFromServerToClint("input symbol is null, stop further process");
-		} 
+		}
 
 		if (functionName.equals("OVERVIEW")) {
-			// Step 1: Check if the stock exists in the database
-			HelpUtil.ErrorServerLog("Step 1: Check if the stock exists in the database");
 			Optional<StockOverview> optionalStockOverview = stockOverviewRepository.findBySymbol(symbol);
+			HelpUtil.ErrorServerLog(
+					"Step 1: Check if the stock exists in the database: " + optionalStockOverview.isPresent());
 			if (optionalStockOverview.isPresent()) {
 				StockOverview stockOverview = optionalStockOverview.get();
 
 				// Step 2: Check if the user is in the list of users associated with that stock
-				HelpUtil.ErrorServerLog("Step 2: Check if the user is in the list of users associated with that stock");
+				HelpUtil.ErrorServerLog("Step 2: Check if the user is in the list of users associated with that stock: "
+						+ isUserAssociatedWithStock(stockOverview, userId));
 				if (!isUserAssociatedWithStock(stockOverview, userId)) {
 					// If the user is not associated, add the user to the stock
 					HelpUtil.ErrorServerLog("If the user is not associated, add the user to the stock");
@@ -154,35 +155,32 @@ public class StockFunctionController {
 							.orElseThrow(() -> new IllegalArgumentException("User not found"));
 					stockOverview.getUsers().add(user);
 
-				    // Update the StockOverview (and cascade the update to associated users)
+					// Update the StockOverview (and cascade the update to associated users)
 					HelpUtil.ErrorServerLog("Update the StockOverview (and cascade the update to associated users)");
-	                stockOverviewRepository.save(stockOverview);
+					stockOverviewRepository.save(stockOverview);
 
-	                // Also update the User entity to maintain the bidirectional relationship
-	                HelpUtil.ErrorServerLog("Also update the User entity to maintain the bidirectional relationship");
-	                user.getStockOverviews().add(stockOverview);
-	                userRepository.save(user);
-				} else {
-					// If the user is already associated, you might handle it accordingly
-					HelpUtil.ErrorFromServerToClint("If the user is already associated, get list StockOverview later");
+					// Also update the User entity to maintain the bidirectional relationship
+					HelpUtil.ErrorServerLog("Also update the User entity to maintain the bidirectional relationship");
+					user.getStockOverviews().add(stockOverview);
+					userRepository.save(user);
 				}
 			} else {
 				// Step 3: If the stock does not exist, you might handle it accordingly
 				HelpUtil.ErrorFromServerToClint("Step 3: If the stock does not exist, you might handle it accordingly");
 				try {
-					//HelpUtil.ErrorServerLog("getStockFunctionResponseValue go online to get data: " + symbol);
+					// HelpUtil.ErrorServerLog("getStockFunctionResponseValue go online to get data:
+					// " + symbol);
 					result = OVERVIEW(symbol);
 					if ((result == null) || result.equals("null") || (result.length() == 0)) {
 						HelpUtil.ErrorServerLog("api call result is null");
 						return HelpUtil.ErrorFromServerToClint("api call result is null");
 					}
 
-					// make sure it is not a 25/day over run information
-					//HelpUtil.ErrorServerLog("getStockFunctionResponseValue get online result: " + result);
 					try {
 						ObjectMapper objectMapper = new ObjectMapper();
 						JsonNode jsonNode = objectMapper.readTree(result);
 
+						// make sure it is not a 25/day over run information
 						// Get the first entry in the JSON object
 						if (jsonNode.isObject() && jsonNode.fields().hasNext()) {
 							// Get the first entry (key-value pair)
@@ -193,25 +191,30 @@ public class StockFunctionController {
 							// Print the first key and value
 							HelpUtil.ErrorServerLog("First Key: " + firstKey);
 							HelpUtil.ErrorServerLog("First Value: " + firstValue);
-							if (firstKey.equals("Information"))
-								return HelpUtil.ErrorFromServerToClint("api call result: " + firstValue);
+							if (firstKey.equals("Information")) {
+								HelpUtil.ErrorServerLog("getStockFunctionResponseValue get online result: " + result);
+								return HelpUtil.ErrorFromServerToClint("api call result: " + result);
+							}
 						} else {
 							return HelpUtil.ErrorFromServerToClint("JSON object is empty.");
 						}
 					} catch (Exception e) {
-						HelpUtil.ErrorServerLog("exception message: " + e.getMessage()+", cause: "+e.getCause());
-						return HelpUtil.ErrorFromServerToClint("exception message: " + e.getMessage() + ", cause: " + e.getCause());
+						HelpUtil.ErrorServerLog("exception message: " + e.getMessage() + ", cause: " + e.getCause());
+						return HelpUtil.ErrorFromServerToClint(
+								"exception message: " + e.getMessage() + ", cause: " + e.getCause());
 					}
-					
-					//HelpUtil.ErrorServerLog("before saveApiResult userId, result: " + userId +", result: "+result);
-					saveApiResult(userId, result);
+
+					// HelpUtil.ErrorServerLog("before saveApiResult userId, result: " + userId +",
+					// result: "+result);
+					saveApiResultToDB(userId, result);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
-					return HelpUtil.ErrorFromServerToClint("exception message: " + e.getMessage() + ", cause: " + e.getCause());
+					return HelpUtil.ErrorFromServerToClint(
+							"exception message: " + e.getMessage() + ", cause: " + e.getCause());
 				}
 			}
 		} else
-			result = HelpUtil.ErrorFromServerToClint("functionName: "+ functionName +" unknow");
+			result = HelpUtil.ErrorFromServerToClint("functionName: " + functionName + " unknow");
 
 		HelpUtil.ErrorServerLog("getStockFunctionResponseValue result");
 
@@ -220,26 +223,27 @@ public class StockFunctionController {
 		User user = userRepository.findByUsername(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		List<StockOverview> userStocks = user.getStockOverviews();
-		HelpUtil.ErrorServerLog("findByUserId userStocks size: " + userStocks.size());
-		for(int i = 0; i < userStocks.size(); i++) {
-			HelpUtil.ErrorServerLog("findByUserId stock: "+userStocks.get(i).getSymbol());
+		HelpUtil.ErrorServerLog("userStocks size: " + userStocks.size());
+		for (int i = 0; i < userStocks.size(); i++) {
+			HelpUtil.ErrorServerLog("stock: " + userStocks.get(i).getSymbol());
 		}
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			result = objectMapper.writeValueAsString(userStocks);
-			 HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from db: " +
-			 result);
+			HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from db: " + result);
 		} catch (JsonProcessingException e) {
-			result = HelpUtil.ErrorFromServerToClint("bad db list StockOverview convert result exception message, cause: "+e.getMessage()+" "+e.getCause());
+			result = HelpUtil
+					.ErrorFromServerToClint("bad db list StockOverview convert result exception message, cause: "
+							+ e.getMessage() + " " + e.getCause());
 		}
 
 		return result;
 	}
 
-	private boolean saveApiResult(String userName, String jsonString) {
-		//HelpUtil.ErrorServerLog("in saveApiResult userName, jsonString: " + userName +", jsonString: "+jsonString);
-		
+	private boolean saveApiResultToDB(String userName, String jsonString) {
+		HelpUtil.ErrorServerLog("in saveApiResult userName: " + userName);
+
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		// Convert JSON string to Java object
@@ -249,7 +253,7 @@ public class StockFunctionController {
 				HelpUtil.ErrorServerLog("overview is null");
 				return false;
 			}
-			HelpUtil.ErrorServerLog("add 6 extra data to entity overview: "+overview);
+			HelpUtil.ErrorServerLog("before add 6 extra data to overview symbol: " + overview.getSymbol()+ ", users: "+overview.getUsers());
 			overview.setCreatedBy(userName);
 			overview.setUpdateBy(userName);
 			overview.setUserId(userName);
@@ -257,40 +261,40 @@ public class StockFunctionController {
 			overview.setUpdateAt(new Date());
 			overview.setUpdateDate(new Date());
 
-			// add user to overview
+			// get user
 			User user = userRepository.findByUsername(userName)
 					.orElseThrow(() -> new IllegalArgumentException("User not found"));
-			HelpUtil.ErrorServerLog("saveApiResult:user:"+user);
-			
+			HelpUtil.ErrorServerLog("saveApiResult:user before add to overview: " + user.toSimpleString());
+
+			// add user to overview
 			overview.getUsers().add(user);
-			HelpUtil.ErrorServerLog("add overview with User overview: "+overview);
-			
+			// HelpUtil.ErrorServerLog("add overview with User overview: "+overview);
+
 			// Save the StockOverview (and cascade the save to associated users)
-			StockOverview newOverview = stockOverviewRepository.save(overview);
-			HelpUtil.ErrorServerLog("update overview with User newOverview: "+newOverview);
-			
-			// add overview to user
-			List<StockOverview> userOverviews = user.getStockOverviews();
-			userOverviews.add(newOverview);
-			
-			// HelpUtil.ErrorServerLog("before call newOverview");
-			// StockOverview newOne = newOverview(overview);
-			// HelpUtil.ErrorServerLog("saveApiResult symbol: " + newOne.getSymbol());
+			StockOverview updatedOverview = stockOverviewRepository.save(overview);
+			HelpUtil.ErrorServerLog("updatedOverview with new User symbol: " + updatedOverview.getSymbol()+ ", users: "+updatedOverview.getUsers());
+
+			// add overviews to user
+			user.getStockOverviews().add(updatedOverview);
+			User updatedUser = userRepository.save(user);
+			HelpUtil.ErrorServerLog("updatedUser with updatedOverview: " + updatedUser.toSimpleString());
 		} catch (JsonMappingException e) {
-			HelpUtil.ErrorServerLog("in saveApiResult JsonMappingException cause: " + e.getCause() +", message: "+e.getMessage());
+			HelpUtil.ErrorServerLog(
+					"in saveApiResult JsonMappingException cause: " + e.getCause() + ", message: " + e.getMessage());
 			e.printStackTrace();
 			return false;
 		} catch (JsonProcessingException e) {
-			HelpUtil.ErrorServerLog("in saveApiResult JsonProcessingException cause: " + e.getCause() +", message: "+e.getMessage());
+			HelpUtil.ErrorServerLog(
+					"in saveApiResult JsonProcessingException cause: " + e.getCause() + ", message: " + e.getMessage());
 			e.printStackTrace();
 			return false;
 		}
 
 		return true;
 	}
-	
+
 	private String OVERVIEW(String symbol) throws IOException, InterruptedException {
-		//HelpUtil.ErrorServerLog("api OVERVIEW: " + symbol);
+		// HelpUtil.ErrorServerLog("api OVERVIEW: " + symbol);
 		StringBuilder sb = new StringBuilder();
 		String requestStr = sb.append(StockApiConstents.BASE_URL_AlphaVantage).append("OVERVIEW").append("&apikey=")
 				.append(StockApiConstents.MY_KEY_AlphaVantage).append("&symbol=").append(symbol).toString();
@@ -310,11 +314,11 @@ public class StockFunctionController {
 		return getResponse("IEXCloud", requestStr);
 	}
 
-	private String getResponse(String apiCo, String requestStr) throws IOException, InterruptedException {
+	private String getResponse(String apiCall, String requestStr) throws IOException, InterruptedException {
 		HttpClient client = HttpClient.newHttpClient();
 		HttpRequest request = HttpRequest.newBuilder().uri(URI.create(requestStr)).build();
 		HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-		HelpUtil.ErrorServerLog(apiCo + ": " + response.body());
+		HelpUtil.ErrorServerLog(apiCall + ": " + response.body());
 		return response.body().toString();
 	}
 }

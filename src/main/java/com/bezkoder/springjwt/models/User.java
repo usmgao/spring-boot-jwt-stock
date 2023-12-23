@@ -116,15 +116,16 @@ public class User {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+		//return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+		return toSimpleString();
 	}
 
 	public String toSimpleString() {
 		String s = "";
 		for (int i = 0; i < stockOverviews.size(); i++) {
 			StockOverview st = stockOverviews.get(i);
-			s = s + ", [" + st.getSymbol() + ", " + st.getId() + ", " + st.getMarketCapitalization() + "]";
+			s = s + ", [" + st.getSymbol() + ", " + st.getId() + "]";
 		}
-		return "id: " + id + ", username: " + username + ", stockOverviews: " + s + ", email: " + email;
+		return "id: " + id + ", username: " + username + ", email: " + email + ", stockOverviews: " + s;
 	}
 }
