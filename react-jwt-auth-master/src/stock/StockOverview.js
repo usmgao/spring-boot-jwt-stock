@@ -10,7 +10,17 @@ const StockOverview = ({ userId, symbol }) => {
   );
 
   const [stockOverviewInfo, setStockOverviewInfo] = useState({ data: {} });
-  const [selectedColumns, setSelectedColumns] = useState([]);
+  const [selectedColumns, setSelectedColumns] = useState([
+    "id",
+    "Symbol",
+    "DividendPerShare",
+    "DividendYield",
+    "AnalystTargetPrice",
+    "DividendDate",
+    "ExDividendDate",
+    "PERatio",
+    "MarketCapitalization",
+  ]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [error, setError] = useState(null);
 
@@ -19,20 +29,23 @@ const StockOverview = ({ userId, symbol }) => {
       loadStock(userId, symbol);
     }
   }, [userId, symbol]);
-
+  /*
   useEffect(() => {
     console.log(
       "Updated StockOverview stockOverviewInfo: " +
         JSON.stringify(stockOverviewInfo)
     );
   }, [stockOverviewInfo]);
-
+*/
   useEffect(() => {
     if (
       stockOverviewInfo.data &&
       Object.keys(stockOverviewInfo.data).length > 0
     ) {
-      setSelectedColumns(Object.keys(stockOverviewInfo.data));
+      setSelectedColumns(
+        selectedColumns
+        //Object.keys(stockOverviewInfo.data).filter((col) => isNaN(col))
+      );
     }
   }, [stockOverviewInfo.data]);
 

@@ -1,0 +1,1 @@
+columns selection is working now, but there are extra columns automaticaly added to selected column, these column title are 0, 1, 2,... etc, the number of extra columns is same as the numbers of stock overview

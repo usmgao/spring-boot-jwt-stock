@@ -16,12 +16,15 @@ const ColumnSelector = ({
     setTempSelectedColumns(selectedColumns);
   }, [selectedColumns]);
 
+  // Change this part in your handleColumnChange function in ColumnSelector
   const handleColumnChange = (column) => {
     const updatedColumns = tempSelectedColumns.includes(column)
       ? tempSelectedColumns.filter((selected) => selected !== column)
       : [...tempSelectedColumns, column];
 
-    setTempSelectedColumns(updatedColumns.filter((col) => isNaN(col))); // Filter out numbers);
+    setTempSelectedColumns(
+      updatedColumns.filter((col) => isNaN(col)) // Filter out numbers
+    );
   };
 
   const handleCancel = () => {
