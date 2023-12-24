@@ -231,7 +231,7 @@ public class StockFunctionController {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			result = objectMapper.writeValueAsString(userStocks);
-			HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from db: " + result);
+			//HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from db: " + result);
 		} catch (JsonProcessingException e) {
 			result = HelpUtil
 					.ErrorFromServerToClint("bad db list StockOverview convert result exception message, cause: "

@@ -43,7 +43,7 @@ public class User {
 	private String name;
 
 	@JsonManagedReference
-	@ManyToMany(mappedBy = "users")
+	@ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
 	private List<StockOverview> stockOverviews = new ArrayList<>();
 
 	public User() {
@@ -121,11 +121,15 @@ public class User {
 	}
 
 	public String toSimpleString() {
-		String s = "";
+		String userStockOverview = "";
 		for (int i = 0; i < stockOverviews.size(); i++) {
 			StockOverview st = stockOverviews.get(i);
-			s = s + ", [" + st.getSymbol() + ", " + st.getId() + "]";
+			userStockOverview = userStockOverview + ", [" + st.getSymbol() + ", " + st.getId() + "]";
 		}
-		return "id: " + id + ", username: " + username + ", email: " + email + ", stockOverviews: " + s;
+		String userRoles = "";
+		for(Role r : roles) {
+			userRoles = userRoles + ", " + r.getName(); 
+		}
+		return id + ", " + username + ", " + email  + userRoles + userStockOverview;
 	}
 }

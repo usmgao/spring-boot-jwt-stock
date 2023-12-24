@@ -4,7 +4,7 @@ import UserService from "../services/user.service";
 import EventBus from "../common/EventBus";
 import StockOverviewWithSearch from "../stock/StockOverviewWithSearch";
 
-export default class BoardUser extends Component {
+export default class BoardStock extends Component {
   constructor(props) {
     super(props);
 

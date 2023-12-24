@@ -60,6 +60,7 @@ public class UserController {
 
     @DeleteMapping("/user/{id}")
     String deleteUser(@PathVariable Long id){
+    	HelpUtil.ErrorServerLog("deleteUser id: " + id);    	
         if(!userRepository.existsById(id)){
             throw new UserNotFoundException(id);
         }
