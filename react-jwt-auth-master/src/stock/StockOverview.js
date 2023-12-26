@@ -126,7 +126,9 @@ const StockOverview = ({ userId, symbol }) => {
       // If delete is successful, reload the stock data
       const stockData = await deleteResponse.json();
       console.log("delete stockData: " + stockData);
-      //console.log("delete stockData.data: " + stockData.data);
+      console.log("delete stockData.data: " + stockData.data);
+
+      setStockOverviewInfo({ data: stockData });
 
       //loadStock(userId, symbol);
     } catch (error) {
