@@ -101,23 +101,34 @@ const StockOverview = ({ userId, symbol }) => {
     setError(null);
   };
 
-  const handleDelete = async (symbol) => {
+  /*
+  const deleteUser = async (id) => {
+    await axios.delete(`http://localhost:8080/user/${id}`);
+    loadUsers();
+  };
+*/
+
+  const handleDelete = async (overviewId) => {
     try {
       // Make API call to delete the stock
       const deleteResponse = await fetch(
-        `http://localhost:8080/deleteStock?userId=${userId}&symbol=${symbol}`,
+        `http://localhost:8080/deleteStock?userId=${userId}&overviewId=${overviewId}`,
         {
           method: "DELETE",
         }
       );
-
+      console.log("1 delete userId, overviewId: " + userId + ", " + overviewId);
       if (!deleteResponse.ok) {
         console.log(`HTTP error! Status: ${deleteResponse.status}`);
         throw new Error(`HTTP error! Status: ${deleteResponse.status}`);
       }
 
       // If delete is successful, reload the stock data
-      loadStock(userId, symbol);
+      const stockData = await deleteResponse.json();
+      console.log("delete stockData: " + stockData);
+      //console.log("delete stockData.data: " + stockData.data);
+
+      //loadStock(userId, symbol);
     } catch (error) {
       console.error("Error deleting stock:", error);
       setError("An unexpected error occurred while deleting the stock.");
@@ -169,11 +180,15 @@ const StockOverview = ({ userId, symbol }) => {
                 {Array.isArray(stockOverviewInfo.data) ? (
                   stockOverviewInfo.data.map((stock, index) => (
                     <tr key={index}>
-                      {selectedColumns.map((key) => (
-                        <td key={key}>{stock[key]}</td>
+                      {selectedColumns.map((column) => (
+                        <td key={column}>{stock[column]}</td>
                       ))}
                       <td>
-                        <button onClick={() => handleDelete(stock.symbol)}>
+                        <button
+                          onClick={() =>
+                            handleDelete(stock[selectedColumns[0]])
+                          }
+                        >
                           Delete
                         </button>
                       </td>
@@ -181,13 +196,16 @@ const StockOverview = ({ userId, symbol }) => {
                   ))
                 ) : (
                   <tr key="singleRow">
-                    {selectedColumns.map((key) => (
-                      <td key={key}>{stockOverviewInfo.data[key]}</td>
+                    {selectedColumns.map((column) => (
+                      <td key={column}>{stockOverviewInfo.data[column]}</td>
                     ))}
                     <td>
+                      {stockOverviewInfo.data[selectedColumns[0]]}
                       <button
                         onClick={() =>
-                          handleDelete(stockOverviewInfo.data.symbol)
+                          handleDelete(
+                            stockOverviewInfo.data[selectedColumns[0]]
+                          )
                         }
                       >
                         Delete

@@ -632,6 +632,15 @@ public class StockOverview {
 
 	@Override
 	public String toString() {
-		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+		//return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+		return toSimpleString();
+	}
+
+	public String toSimpleString() {		
+		String userStr = "";
+		for(User r : users) {
+			userStr = userStr + ", " + r.getName(); 
+		}
+		return id + ", " + symbol + userStr;
 	}
 }

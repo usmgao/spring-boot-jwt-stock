@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bezkoder.springjwt.HelpUtil;
 import com.bezkoder.springjwt.exception.StockFunctionNameNotFoundException;
+import com.bezkoder.springjwt.exception.UserNotFoundException;
 import com.bezkoder.springjwt.models.StockOverview;
 import com.bezkoder.springjwt.repository.StockOverviewRepository;
 import com.bezkoder.springjwt.repository.UserRepository;
@@ -114,11 +116,102 @@ public class StockFunctionController {
 
 	@DeleteMapping("/overview/{id}")
 	String deleteUser(@PathVariable Long id) {
-		if (!stockOverviewRepository.existsById(id)) {
-			throw new StockFunctionNameNotFoundException(id);
-		}
-		stockOverviewRepository.deleteById(id);
+//		if (!stockOverviewRepository.existsById(id)) {
+//			throw new StockFunctionNameNotFoundException(id);
+//		}
+//		stockOverviewRepository.deleteById(id);
+		// remove user from stock overview
+
 		return "StockOverview with id " + id + " has been deleted success.";
+	}
+
+	@DeleteMapping("/deleteStock")
+	public ResponseEntity<String> deleteStock(@RequestParam String userId, @RequestParam String overviewId) {
+		HelpUtil.ErrorServerLog("deleteStock ================== userId, overviewId: " + userId + ", " + overviewId);
+		String result = "Stock deleted not successful";
+		// Perform the logic to delete the stock from the user's stock overview list
+		// remove user from stock overview
+
+		StockOverview so = stockOverviewRepository.findById(Long.parseLong(overviewId)).orElseThrow();
+		HelpUtil.ErrorServerLog("so: " + so.toSimpleString());
+
+		List<User> userFromOverviewOld = so.getUsers();
+
+		User currentUser = null;
+		if (userFromOverviewOld != null) {
+			for (User u : userFromOverviewOld) {
+				HelpUtil.ErrorServerLog("u   in   so: " + u);
+				if (u.getUsername().equals(userId)) {
+					currentUser = u;
+					HelpUtil.ErrorServerLog("currentUser: " + currentUser);
+				}
+			}
+		}
+
+		userFromOverviewOld.removeIf(e -> e.getUsername().equals(userId));
+
+		List<User> userFromOverview = so.getUsers();
+		HelpUtil.ErrorServerLog("so after remove currentUser: " + so.toSimpleString());
+		for (User u : userFromOverview) {
+			HelpUtil.ErrorServerLog("u in new so: " + u);
+		}
+		if (currentUser == null) {
+			return ResponseEntity.ok(result);
+		}
+		
+		List<StockOverview> stockOverviewFromCurrentUserOld = currentUser.getStockOverviews();
+		HelpUtil.ErrorServerLog(" stockOverviewFromCurrentUserOld: " + stockOverviewFromCurrentUserOld);
+		stockOverviewFromCurrentUserOld.removeIf(e -> e.getId().toString().equals(overviewId));
+
+		List<StockOverview> stockOverviewFromCurrentUser = currentUser.getStockOverviews();
+
+		HelpUtil.ErrorServerLog("new stockOverviewFromCurrentUser: " + stockOverviewFromCurrentUser);
+
+
+//		Optional<StockOverview> optionalStockOverview = stockOverviewRepository.findById(Long.parseLong(overviewId));
+//		HelpUtil.ErrorServerLog("optionalStockOverview: " + optionalStockOverview);
+//		
+//		
+//		if (optionalStockOverview.isPresent()) {
+//			HelpUtil.ErrorServerLog("deleteStock2  ==================");
+//			StockOverview stockOverview = optionalStockOverview.get();
+//			if (isUserAssociatedWithStock(stockOverview, userId)) {
+//				HelpUtil.ErrorServerLog("deleteStock 3 ==================");
+//				List<User> users = stockOverview.getUsers();
+//				HelpUtil.ErrorServerLog("before remove user in deleteStock: " + users);
+//				users.removeIf(e -> e.getId().toString().equals(userId));
+//				stockOverviewRepository.save(stockOverview);
+//				HelpUtil.ErrorServerLog("after remove user in deleteStock: " + users);
+//			} else {
+//				HelpUtil.ErrorServerLog(
+//						"nothing to remove from StockOverview due to user is missing from StockOverview in DB for overviewId and uid: "+overviewId+", "+userId);
+//			}
+//		} else {
+//			HelpUtil.ErrorServerLog("nothing to delete due to StockOverview is not exists in DB for overviewId: "+overviewId);
+//		}
+		// Return a success message or handle errors appropriately
+		// get StockOverview list without deleted one from user id
+		User user = userRepository.findByUsername(userId)
+				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		List<StockOverview> userStocks = user.getStockOverviews();
+		HelpUtil.ErrorServerLog("userStocks size: " + userStocks.size());
+		for (int i = 0; i < userStocks.size(); i++) {
+			HelpUtil.ErrorServerLog("stock: " + userStocks.get(i).getSymbol());
+		}
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			result = objectMapper.writeValueAsString(userStocks);
+			// HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from
+			// db: " + result);
+		} catch (JsonProcessingException e) {
+			result = HelpUtil
+					.ErrorFromServerToClint("bad db list StockOverview convert result exception message, cause: "
+							+ e.getMessage() + " " + e.getCause());
+		}
+		
+		HelpUtil.ErrorServerLog("delete result: " + result);
+		return ResponseEntity.ok(result);
 	}
 
 	private boolean isUserAssociatedWithStock(StockOverview stockOverview, String userName) {
@@ -231,7 +324,8 @@ public class StockFunctionController {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			result = objectMapper.writeValueAsString(userStocks);
-			//HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from db: " + result);
+			// HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from
+			// db: " + result);
 		} catch (JsonProcessingException e) {
 			result = HelpUtil
 					.ErrorFromServerToClint("bad db list StockOverview convert result exception message, cause: "
@@ -253,7 +347,8 @@ public class StockFunctionController {
 				HelpUtil.ErrorServerLog("overview is null");
 				return false;
 			}
-			HelpUtil.ErrorServerLog("before add 6 extra data to overview symbol: " + overview.getSymbol()+ ", users: "+overview.getUsers());
+			HelpUtil.ErrorServerLog("before add 6 extra data to overview symbol: " + overview.getSymbol() + ", users: "
+					+ overview.getUsers());
 			overview.setCreatedBy(userName);
 			overview.setUpdateBy(userName);
 			overview.setUserId(userName);
@@ -272,7 +367,8 @@ public class StockFunctionController {
 
 			// Save the StockOverview (and cascade the save to associated users)
 			StockOverview updatedOverview = stockOverviewRepository.save(overview);
-			HelpUtil.ErrorServerLog("updatedOverview with new User symbol: " + updatedOverview.getSymbol()+ ", users: "+updatedOverview.getUsers());
+			HelpUtil.ErrorServerLog("updatedOverview with new User symbol: " + updatedOverview.getSymbol() + ", users: "
+					+ updatedOverview.getUsers());
 
 			// add overviews to user
 			user.getStockOverviews().add(updatedOverview);

@@ -12,6 +12,7 @@ import com.bezkoder.springjwt.models.StockOverview;
 @Repository
 public interface StockOverviewRepository extends JpaRepository<StockOverview,Long> {
 	public Optional<StockOverview> findBySymbol(String symbol);
+	//public Optional<StockOverview> findById(String id);
 	public StockOverview findBySymbolAndUserId(String symbol, String userId);
 	public List<StockOverview> findByUserId(String userId);
 }
