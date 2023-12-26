@@ -5,10 +5,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.bezkoder.springjwt.models.Role;
+import com.bezkoder.springjwt.models.StockOverview;
 import com.bezkoder.springjwt.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -100,4 +104,24 @@ public class UserDetailsImpl implements UserDetails {
     UserDetailsImpl user = (UserDetailsImpl) o;
     return Objects.equals(id, user.id);
   }
+  
+
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+		//return toSimpleString();
+	}
+
+//	public String toSimpleString() {
+//		String userStockOverview = "";
+//		for (int i = 0; i < stockOverviews.size(); i++) {
+//			StockOverview st = stockOverviews.get(i);
+//			userStockOverview = userStockOverview + ", [" + st.getSymbol() + ", " + st.getId() + "]";
+//		}
+//		String userRoles = "";
+//		for(Role r : roles) {
+//			userRoles = userRoles + ", " + r.getName(); 
+//		}
+//		return id + ", " + username + ", " + email  + userRoles + userStockOverview;
+//	}
 }

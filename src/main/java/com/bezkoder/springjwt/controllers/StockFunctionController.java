@@ -12,6 +12,9 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -131,74 +134,91 @@ public class StockFunctionController {
 		String result = "Stock deleted not successful";
 		// Perform the logic to delete the stock from the user's stock overview list
 		// remove user from stock overview
-
 		StockOverview so = stockOverviewRepository.findById(Long.parseLong(overviewId)).orElseThrow();
 		HelpUtil.ErrorServerLog("so: " + so.toSimpleString());
 
+		// get user list from so
 		List<User> userFromOverviewOld = so.getUsers();
+	
+//		User currentUser = null;
+//		if (userFromOverviewOld != null) {
+//			for (User u : userFromOverviewOld) {
+//				HelpUtil.ErrorServerLog("u   in   so: " + u);
+//				if (u.getUsername().equals(userId)) {
+//					currentUser = u;
+//					HelpUtil.ErrorServerLog("currentUser: " + currentUser);
+//				}
+//			}
+//		}
 
-		User currentUser = null;
-		if (userFromOverviewOld != null) {
-			for (User u : userFromOverviewOld) {
-				HelpUtil.ErrorServerLog("u   in   so: " + u);
-				if (u.getUsername().equals(userId)) {
-					currentUser = u;
-					HelpUtil.ErrorServerLog("currentUser: " + currentUser);
-				}
-			}
-		}
-
+		// remove user from stock overview so list
 		userFromOverviewOld.removeIf(e -> e.getUsername().equals(userId));
 
-		List<User> userFromOverview = so.getUsers();
-		HelpUtil.ErrorServerLog("so after remove currentUser: " + so.toSimpleString());
-		for (User u : userFromOverview) {
-			HelpUtil.ErrorServerLog("u in new so: " + u);
-		}
-		if (currentUser == null) {
-			return ResponseEntity.ok(result);
-		}
+//		List<User> userFromOverview = so.getUsers();
 		
-		List<StockOverview> stockOverviewFromCurrentUserOld = currentUser.getStockOverviews();
-		HelpUtil.ErrorServerLog(" stockOverviewFromCurrentUserOld: " + stockOverviewFromCurrentUserOld);
-		stockOverviewFromCurrentUserOld.removeIf(e -> e.getId().toString().equals(overviewId));
-
-		List<StockOverview> stockOverviewFromCurrentUser = currentUser.getStockOverviews();
-
-		HelpUtil.ErrorServerLog("new stockOverviewFromCurrentUser: " + stockOverviewFromCurrentUser);
-
-
-//		Optional<StockOverview> optionalStockOverview = stockOverviewRepository.findById(Long.parseLong(overviewId));
-//		HelpUtil.ErrorServerLog("optionalStockOverview: " + optionalStockOverview);
-//		
-//		
-//		if (optionalStockOverview.isPresent()) {
-//			HelpUtil.ErrorServerLog("deleteStock2  ==================");
-//			StockOverview stockOverview = optionalStockOverview.get();
-//			if (isUserAssociatedWithStock(stockOverview, userId)) {
-//				HelpUtil.ErrorServerLog("deleteStock 3 ==================");
-//				List<User> users = stockOverview.getUsers();
-//				HelpUtil.ErrorServerLog("before remove user in deleteStock: " + users);
-//				users.removeIf(e -> e.getId().toString().equals(userId));
-//				stockOverviewRepository.save(stockOverview);
-//				HelpUtil.ErrorServerLog("after remove user in deleteStock: " + users);
-//			} else {
-//				HelpUtil.ErrorServerLog(
-//						"nothing to remove from StockOverview due to user is missing from StockOverview in DB for overviewId and uid: "+overviewId+", "+userId);
-//			}
-//		} else {
-//			HelpUtil.ErrorServerLog("nothing to delete due to StockOverview is not exists in DB for overviewId: "+overviewId);
+		
+		// update so in DB
+		StockOverview updatedSo = stockOverviewRepository.save(so);
+		HelpUtil.ErrorServerLog("updatedSo after remove currentUser: " + updatedSo.toSimpleString());
+		
+//		for (User u : userFromOverview) {
+//			HelpUtil.ErrorServerLog("u in new so: " + u);
 //		}
-		// Return a success message or handle errors appropriately
-		// get StockOverview list without deleted one from user id
+//		if (currentUser == null) {
+//			return ResponseEntity.ok(result);
+//		}
 		User user = userRepository.findByUsername(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
+		
+		// get stock overview list from user
+		List<StockOverview> stockOverviewFromCurrentUserOld = user.getStockOverviews();
+		HelpUtil.ErrorServerLog(" stockOverviewFromCurrentUserOld: " + stockOverviewFromCurrentUserOld);
+		
+		// remove stock overview from user list
+		stockOverviewFromCurrentUserOld.removeIf(e -> e.getId().toString().equals(overviewId));
+		
+		// update user in DB
+		User updatedUser = userRepository.save(user);
+		HelpUtil.ErrorServerLog("updatedUser: " + updatedUser);
+		
+		
+//		List<StockOverview> stockOverviewFromCurrentUser = user.getStockOverviews();
+//		stockOverviewRepository.save(stockOverview);
+//		HelpUtil.ErrorServerLog("new stockOverviewFromCurrentUser: " + stockOverviewFromCurrentUser);
+
+		// Return a success message or handle errors appropriately
+		// get StockOverview list without deleted one from user id
+//		User user = userRepository.findByUsername(userId)
+//				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		List<StockOverview> userStocks = user.getStockOverviews();
 		HelpUtil.ErrorServerLog("userStocks size: " + userStocks.size());
 		for (int i = 0; i < userStocks.size(); i++) {
 			HelpUtil.ErrorServerLog("stock: " + userStocks.get(i).getSymbol());
 		}
 		
+//		Authentication authenticationOld = SecurityContextHolder.getContext().getAuthentication();
+//		HelpUtil.ErrorServerLog("authenticationOld: " + authenticationOld);
+//        // Get the principal (authenticated user) from the authentication object
+//        if (authenticationOld != null && authenticationOld.getPrincipal() instanceof User) {
+//            User loginUser = (User) authenticationOld.getPrincipal();
+//            HelpUtil.ErrorServerLog("loginUser: " + loginUser);
+//            List<StockOverview> loginUserStocks = loginUser.getStockOverviews();
+//    		HelpUtil.ErrorServerLog("loginUserStocks size: " + loginUserStocks.size());
+//    		for (int i = 0; i < loginUserStocks.size(); i++) {
+//    			HelpUtil.ErrorServerLog("loginUserStocks: " + userStocks.get(i).getSymbol());
+//    		}
+//        }
+//		
+//		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//		if (authentication != null && authentication.isAuthenticated() && authentication.getPrincipal() instanceof UserDetails) {
+//		    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//		    HelpUtil.ErrorServerLog("userDetails: " + userDetails);
+//		    String userName = userDetails.getUsername();
+//		    User userFromUserDetails = userRepository.findByUsername(userName)
+//					.orElseThrow(() -> new IllegalArgumentException("User not found"));
+//		    HelpUtil.ErrorServerLog("userFromUserDetails: " + userFromUserDetails);
+//		}
+        
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			result = objectMapper.writeValueAsString(userStocks);
