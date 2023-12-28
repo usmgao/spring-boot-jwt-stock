@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import axios from "axios"; // Import Axios for making HTTP requests
+
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap styles
 
 const ColumnSelector = ({
   columns,
@@ -8,100 +11,48 @@ const ColumnSelector = ({
   onCancel,
   onConfirm,
 }) => {
-  console.log("ColumnSelector: columns: ", columns);
   const [tempSelectedColumns, setTempSelectedColumns] =
     useState(selectedColumns);
+  const [selectionName, setSelectionName] = useState(""); // New state for selection name
+  const [savedSelections, setSavedSelections] = useState([]); // State to store saved selections
 
   useEffect(() => {
     setTempSelectedColumns(selectedColumns);
   }, [selectedColumns]);
 
-  // Change this part in your handleColumnChange function in ColumnSelector
-  const handleColumnChange = (column) => {
-    const updatedColumns = tempSelectedColumns.includes(column)
-      ? tempSelectedColumns.filter((selected) => selected !== column)
-      : [...tempSelectedColumns, column];
-
-    setTempSelectedColumns(
-      updatedColumns.filter((col) => isNaN(col)) // Filter out numbers
-    );
-  };
-
-  const handleCancel = () => {
-    setTempSelectedColumns(selectedColumns);
-    onCancel();
-  };
-
-  const handleConfirm = () => {
-    onConfirm(tempSelectedColumns);
-  };
-
-  return (
-    <div>
-      <h3>Select Display Columns</h3>
-      <button onClick={handleCancel}>Cancel</button>
-      <button onClick={handleConfirm}>Confirm</button>
-      {columns.map((column) => (
-        <div key={column}>
-          <label>
-            <input
-              type="checkbox"
-              checked={tempSelectedColumns.includes(column)}
-              onChange={() => handleColumnChange(column)}
-            />
-            {column}
-          </label>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-ColumnSelector.propTypes = {
-  columns: PropTypes.array.isRequired,
-  selectedColumns: PropTypes.array.isRequired,
-  onColumnChange: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-};
-
-export default ColumnSelector;
-
-/*
-import React, { useState, useEffect } from "react";
-import PropTypes from "prop-types";
-
-const ColumnSelector = ({
-  columns,
-  selectedColumns,
-  onColumnChange,
-  onCancel,
-  onConfirm,
-}) => {
-  console.log("ColumnSelector: columns", columns);
-  console.log("ColumnSelector: selectedColumns", selectedColumns);
-
-  const [tempSelectedColumns, setTempSelectedColumns] =
-    useState(selectedColumns);
-
   useEffect(() => {
-    setTempSelectedColumns(selectedColumns);
-  }, [selectedColumns]);
+    // Fetch saved selections when the component mounts
+    fetchSavedSelections();
+  }, []);
 
-  const getObjectKeys = () => {
-    // Assuming there is at least one object in the array
-    const firstObject = columns[0];
-    if (firstObject) {
-      return Object.keys(firstObject);
+  const fetchSavedSelections = async () => {
+    try {
+      // Make a request to your backend to get saved selections
+      const response = await axios.get("/api/saved-selections");
+      setSavedSelections(response.data);
+    } catch (error) {
+      console.error("Error fetching saved selections:", error);
     }
-    return [];
+  };
+
+  const saveSelection = async () => {
+    try {
+      // Make a request to your backend to save the selection
+      await axios.post("/api/save-selection", {
+        name: selectionName,
+        columns: tempSelectedColumns,
+      });
+      // Fetch the updated list of saved selections
+      fetchSavedSelections();
+    } catch (error) {
+      console.error("Error saving selection:", error);
+    }
   };
 
   const handleColumnChange = (column) => {
     const updatedColumns = tempSelectedColumns.includes(column)
       ? tempSelectedColumns.filter((selected) => selected !== column)
       : [...tempSelectedColumns, column];
-
     setTempSelectedColumns(updatedColumns);
   };
 
@@ -114,89 +65,55 @@ const ColumnSelector = ({
     onConfirm(tempSelectedColumns);
   };
 
-  const keys = getObjectKeys();
-
-  return (
-    <div>
-      <h3>Select Display Columns</h3>
-      {keys.map((column, index) => (
-        <div key={index}>
-          <label>
-            <input
-              type="checkbox"
-              checked={tempSelectedColumns.includes(column)}
-              onChange={() => handleColumnChange(column)}
-            />
-            {column}
-          </label>
-        </div>
-      ))}
-      <button onClick={handleCancel}>Cancel</button>
-      <button onClick={handleConfirm}>Confirm</button>
-    </div>
-  );
-};
-
-ColumnSelector.propTypes = {
-  columns: PropTypes.array.isRequired,
-  selectedColumns: PropTypes.array.isRequired,
-  onColumnChange: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
-  onConfirm: PropTypes.func.isRequired,
-};
-
-export default ColumnSelector;
-*/
-/*
-import React, { useState } from "react";
-import PropTypes from "prop-types";
-
-const ColumnSelector = ({
-  columns,
-  selectedColumns,
-  onColumnChange,
-  onCancel,
-  onConfirm,
-}) => {
-  console.log("ColumnSelector:columns: " + columns);
-
-  const [tempSelectedColumns, setTempSelectedColumns] =
-    useState(selectedColumns);
-
-  const handleColumnChange = (column) => {
-    const updatedColumns = tempSelectedColumns.includes(column)
-      ? tempSelectedColumns.filter((selected) => selected !== column)
-      : [...tempSelectedColumns, column];
-
-    setTempSelectedColumns(updatedColumns);
-  };
-
-  const handleCancel = () => {
-    setTempSelectedColumns(selectedColumns);
-    onCancel();
-  };
-
-  const handleConfirm = () => {
-    onConfirm(tempSelectedColumns);
+  const handleSelectionNameChange = (e) => {
+    setSelectionName(e.target.value);
   };
 
   return (
-    <div>
+    <div className="container mt-4">
       <h3>Select Display Columns</h3>
+      <div className="mb-3">
+        <label htmlFor="selectionName" className="form-label">
+          Selection Name:
+        </label>
+        <input
+          type="text"
+          id="selectionName"
+          className="form-control"
+          value={selectionName}
+          onChange={handleSelectionNameChange}
+        />
+      </div>
       {columns.map((column) => (
-        <div key={column}>
-          <label>
-            <input
-              type="checkbox"
-              checked={tempSelectedColumns.includes(column)}
-              onChange={() => handleColumnChange(column)}
-            />
-            {column}
-          </label>
+        <div key={column} className="form-check">
+          <input
+            type="checkbox"
+            className="form-check-input"
+            checked={tempSelectedColumns.includes(column)}
+            onChange={() => handleColumnChange(column)}
+          />
+          <label className="form-check-label">{column}</label>
         </div>
       ))}
-      <button onClick={handleCancel}>Cancel</button>
-      <button onClick={handleConfirm}>Confirm</button>
+      <div className="mt-3">
+        <button className="btn btn-secondary me-2" onClick={handleCancel}>
+          Cancel
+        </button>
+        <button className="btn btn-primary me-2" onClick={handleConfirm}>
+          Confirm
+        </button>
+        <button className="btn btn-success" onClick={saveSelection}>
+          Save Selection
+        </button>
+      </div>
+      <div className="mt-4">
+        <h5>Saved Selections:</h5>
+        <ul>
+          {savedSelections.map((selection) => (
+            <li key={selection._id}>{selection.name}</li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 };
@@ -210,4 +127,3 @@ ColumnSelector.propTypes = {
 };
 
 export default ColumnSelector;
-*/
