@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
@@ -45,6 +46,11 @@ public class User {
 	@JsonManagedReference
 	@ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
 	private List<StockOverview> stockOverviews = new ArrayList<>();
+
+
+	@JsonManagedReference
+	@ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
+	private Set<ColumnSelection> columnSelections = new HashSet<>();
 
 	public User() {
 	}
@@ -112,6 +118,14 @@ public class User {
 
 	public void setStockOverviews(List<StockOverview> stockOverviews) {
 		this.stockOverviews = stockOverviews;
+	}
+
+	public Set<ColumnSelection> getColumnSelections() {
+		return columnSelections;
+	}
+
+	public void setColumnSelections(Set<ColumnSelection> columnSelections) {
+		this.columnSelections = columnSelections;
 	}
 
 	@Override

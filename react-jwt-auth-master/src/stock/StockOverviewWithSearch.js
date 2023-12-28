@@ -14,7 +14,7 @@ function StockOverviewWithSearch(props) {
   };
   return (
     <div className="container">
-      <div>selectedStock: {selectedStock}</div>
+      <div>{selectedStock}</div>
       <StockNamSearch onSearch={handleSearch} />
       {selectedStock && (
         <StockOverview userId={parameterValue} symbol={selectedStock} />

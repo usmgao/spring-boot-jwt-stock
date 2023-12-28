@@ -39,6 +39,8 @@ const ColumnSelector = ({
   return (
     <div>
       <h3>Select Display Columns</h3>
+      <button onClick={handleCancel}>Cancel</button>
+      <button onClick={handleConfirm}>Confirm</button>
       {columns.map((column) => (
         <div key={column}>
           <label>
@@ -51,8 +53,6 @@ const ColumnSelector = ({
           </label>
         </div>
       ))}
-      <button onClick={handleCancel}>Cancel</button>
-      <button onClick={handleConfirm}>Confirm</button>
     </div>
   );
 };

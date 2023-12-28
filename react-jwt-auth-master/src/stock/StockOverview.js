@@ -146,13 +146,13 @@ const StockOverview = ({ userId, symbol }) => {
         />
       ) : (
         <div>
-          <div>AlphaVantage: OVERVIEW</div>
-          <button onClick={openDialog}>Select Columns</button>
+          <div></div>
+          <button onClick={openDialog}>Default Columns</button>
 
           <Modal
             isOpen={isDialogOpen}
             onRequestClose={closeDialog}
-            contentLabel="Select Columns"
+            contentLabel="Default Columns"
           >
             <ColumnSelector
               columns={

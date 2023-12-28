@@ -18,7 +18,7 @@ public class TestController {
   @GetMapping("/user")
   @PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
   public String userAccess() {
-    return "Stock Content.";
+    return "Stock Overview";
   }
 
   @GetMapping("/mod")

@@ -58,7 +58,7 @@ const StockNamSearch = ({ onSearch }) => {
 
   return (
     <div>
-      <h3>Search by Symbol</h3>
+      <h5>Select Stock: </h5>
       <input type="text" value={searchTerm} onChange={handleInputChange} />
 
       <div className="py-4">
