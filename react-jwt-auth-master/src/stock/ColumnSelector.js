@@ -5,6 +5,7 @@ import axios from "axios"; // Import Axios for making HTTP requests
 import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap styles
 
 const ColumnSelector = ({
+  userId,
   columns,
   selectedColumns,
   onColumnChange,
@@ -16,6 +17,7 @@ const ColumnSelector = ({
   const [selectionName, setSelectionName] = useState(""); // New state for selection name
   const [savedSelections, setSavedSelections] = useState([]); // State to store saved selections
 
+  console.log("ColumnSelector::userId: " + userId);
   useEffect(() => {
     setTempSelectedColumns(selectedColumns);
   }, [selectedColumns]);
@@ -38,6 +40,27 @@ const ColumnSelector = ({
   const saveSelection = async () => {
     try {
       // Make a request to your backend to save the selection
+      console.log(
+        "ColumnSelector::saveSelection:selectionName: " + selectionName
+      );
+      console.log(
+        "ColumnSelector::saveSelection:tempSelectedColumns: " +
+          tempSelectedColumns
+      );
+      console.log("ColumnSelector::saveSelection:userId: " + userId);
+      const functionName = "selectionName";
+      const backendUrl = `http://localhost:8080/stock?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
+      try {
+        const response = await fetch(backendUrl);
+
+        if (!response.ok) {
+          console.log(`HTTP error! Status: ${response.status}`);
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Error fetching saved selectionName: ", error);
+      }
+
       await axios.post("/api/save-selection", {
         name: selectionName,
         columns: tempSelectedColumns,

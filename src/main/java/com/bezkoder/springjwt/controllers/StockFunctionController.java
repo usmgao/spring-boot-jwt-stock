@@ -243,7 +243,7 @@ public class StockFunctionController {
 	public String getStockFunctionResponseValue(@RequestParam String symbol, @RequestParam String functionName,
 			@RequestParam String userId) {
 		HelpUtil.ErrorServerLog("========= from /stock path ======== " + LocalDateTime.now());
-		HelpUtil.ErrorServerLog("getStockFunctionResponseValue input: " + symbol + ", " + functionName + ", " + userId);
+		HelpUtil.ErrorServerLog("getStockFunctionResponseValue input symbol: " + symbol + ", functionName: " + functionName + ", userId: " + userId);
 		String result = HelpUtil.ErrorFromServerToClint("initial default value: null");
 
 		if ((symbol == null) || symbol.equals("null") || (symbol.length() == 0)) {
@@ -326,6 +326,9 @@ public class StockFunctionController {
 							"exception message: " + e.getMessage() + ", cause: " + e.getCause());
 				}
 			}
+		} else if (functionName.equals("selectionName")) {
+			HelpUtil.ErrorServerLog("functionName=selectionName; input symbol: " + symbol + "; functionName: " + functionName + "; userId: " + userId);
+			return HelpUtil.ErrorFromServerToClint("input selections testing");
 		} else
 			result = HelpUtil.ErrorFromServerToClint("functionName: " + functionName + " unknow");
 

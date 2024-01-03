@@ -146,7 +146,7 @@ const StockOverview = ({ userId, symbol }) => {
         />
       ) : (
         <div>
-          <div></div>
+          <div>userId={userId}</div>
           <button onClick={openDialog}>Default Columns</button>
 
           <Modal
@@ -155,6 +155,7 @@ const StockOverview = ({ userId, symbol }) => {
             contentLabel="Default Columns"
           >
             <ColumnSelector
+              userId={userId}
               columns={
                 stockOverviewInfo.data
                   ? Object.keys(stockOverviewInfo.data[0] || {})
