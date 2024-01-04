@@ -11,5 +11,5 @@ import com.bezkoder.springjwt.models.User;
 
 @Repository
 public interface ColumnSelectionRepository extends JpaRepository<ColumnSelection,Long> {
-
+	public Optional<ColumnSelection> findByColumnsSelectionName(String columnsSelectionName);
 }

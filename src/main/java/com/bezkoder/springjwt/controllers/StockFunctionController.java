@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bezkoder.springjwt.HelpUtil;
 import com.bezkoder.springjwt.exception.StockFunctionNameNotFoundException;
 import com.bezkoder.springjwt.exception.UserNotFoundException;
+import com.bezkoder.springjwt.models.ColumnSelection;
 import com.bezkoder.springjwt.models.StockOverview;
 import com.bezkoder.springjwt.repository.ColumnSelectionRepository;
 import com.bezkoder.springjwt.repository.StockOverviewRepository;
@@ -453,10 +455,10 @@ public class StockFunctionController {
 //           } else
              if (functionName.equals("selectionName")) {
                      HelpUtil.ErrorServerLog("getStockFunctionResponseValue input symbol: " + symbol + ", functionName: " + functionName + ", userId: " + userId + ", selectionName: " + selectionName);
-//                     Optional<ColumnSelection> optionalColumnSelection = columnSelectionRepository.findByName(result);
-//                     HelpUtil.ErrorServerLog(
-//                                     "Step 1: Check if the stock exists in the database: " + optionalColumnSelection.isPresent());
-//                     if (optionalColumnSelection.isPresent()) {
+                     Optional<ColumnSelection> optionalColumnSelection = columnSelectionRepository.findByColumnsSelectionName(selectionName);
+                     HelpUtil.ErrorServerLog(
+                                     "Step 1: Check if the stock exists in the database: " + optionalColumnSelection.isPresent());
+                     if (optionalColumnSelection.isPresent()) {
 //                             ColumnSelection columnSelection = optionalColumnSelection.get();
 //
 //                             // Step 2: Check if the user is in the list of users associated with that stock
@@ -478,9 +480,9 @@ public class StockFunctionController {
 ////                                   user.getStockOverviews().add(columnSelection);
 ////                                   userRepository.save(user);
 //                             }
-//                     } else {
-//                             // Step 3: If the stock does not exist, you might handle it accordingly
-//                             HelpUtil.ErrorFromServerToClint("Step 3: If the stock does not exist, you might handle it accordingly");
+                     } else {
+                             // Step 3: If the stock does not exist, you might handle it accordingly
+                             HelpUtil.ErrorFromServerToClint("Step 3: If the stock does not exist, you might handle it accordingly");
 //                             try {
 //                                     // HelpUtil.ErrorServerLog("getStockFunctionResponseValue go online to get data:
 //                                     // " + symbol);
@@ -526,25 +528,26 @@ public class StockFunctionController {
 //                                     return HelpUtil.ErrorFromServerToClint(
 //                                                     "exception message: " + e.getMessage() + ", cause: " + e.getCause());
 //                             }
-//                     }
+                     }
              } else
                      result = HelpUtil.ErrorFromServerToClint("functionName: " + functionName + " unknow");
 
              HelpUtil.ErrorServerLog("getStockFunctionResponseValue result");
 
              // load all symbol by id
-             HelpUtil.ErrorFromServerToClint("load all symbol by user id");
+             HelpUtil.ErrorFromServerToClint("load all selections by user id");
              User user = userRepository.findByUsername(userId)
                              .orElseThrow(() -> new IllegalArgumentException("User not found"));
-             List<StockOverview> userStocks = user.getStockOverviews();
-             HelpUtil.ErrorServerLog("userStocks size: " + userStocks.size());
-             for (int i = 0; i < userStocks.size(); i++) {
-                     HelpUtil.ErrorServerLog("stock: " + userStocks.get(i).getSymbol());
+             HelpUtil.ErrorFromServerToClint("user: "+user);
+             Set<ColumnSelection> userSelections = user.getColumnSelections();
+             HelpUtil.ErrorServerLog("userStocks size: " + userSelections.size());
+             for (ColumnSelection userSelecions : userSelections) {
+                     HelpUtil.ErrorServerLog("userSelecions: " + userSelecions);
              }
 
              ObjectMapper objectMapper = new ObjectMapper();
              try {
-                     result = objectMapper.writeValueAsString(userStocks);
+                     result = objectMapper.writeValueAsString(userSelections);
                      // HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from
                      // db: " + result);
              } catch (JsonProcessingException e) {
