@@ -30,6 +30,7 @@ import com.bezkoder.springjwt.HelpUtil;
 import com.bezkoder.springjwt.exception.StockFunctionNameNotFoundException;
 import com.bezkoder.springjwt.exception.UserNotFoundException;
 import com.bezkoder.springjwt.models.StockOverview;
+import com.bezkoder.springjwt.repository.ColumnSelectionRepository;
 import com.bezkoder.springjwt.repository.StockOverviewRepository;
 import com.bezkoder.springjwt.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -55,7 +56,10 @@ public class StockFunctionController {
 
 	@Autowired
 	private UserRepository userRepository;
-
+	
+	@Autowired
+	private ColumnSelectionRepository columnSelectionRepository;
+	
 	@PostMapping("/overview")
 	StockOverview newOverview(@RequestBody StockOverview overview) {
 		HelpUtil.ErrorServerLog("newOverview: " + overview);
@@ -357,6 +361,200 @@ public class StockFunctionController {
 
 		return result;
 	}
+
+     @GetMapping("/selection")
+//   @Transactional
+     public String getStockSelectionFunctionResponseValue(@RequestParam String symbol, @RequestParam String functionName,
+                     @RequestParam String userId, @RequestParam(name = "selectionName", defaultValue = "default_name") String selectionName) {
+             HelpUtil.ErrorServerLog("========= from /stock path ======== " + LocalDateTime.now());
+             HelpUtil.ErrorServerLog("getStockFunctionResponseValue input symbol: " + symbol + ", functionName: " + functionName + ", userId: " + userId + ", selectionName: " + selectionName);
+             String result = HelpUtil.ErrorFromServerToClint("initial default value: null");
+
+             if ((symbol == null) || symbol.equals("null") || (symbol.length() == 0)) {
+                     HelpUtil.ErrorServerLog("getStockFunctionResponseValue: input symbol is null");
+                     return HelpUtil.ErrorFromServerToClint("input symbol is null, stop further process");
+             }
+
+//           if (functionName.equals("OVERVIEW")) {
+//                   Optional<StockOverview> optionalStockOverview = stockOverviewRepository.findBySymbol(symbol);
+//                   HelpUtil.ErrorServerLog(
+//                                   "Step 1: Check if the stock exists in the database: " + optionalStockOverview.isPresent());
+//                   if (optionalStockOverview.isPresent()) {
+//                           StockOverview stockOverview = optionalStockOverview.get();
+//
+//                           // Step 2: Check if the user is in the list of users associated with that stock
+//                           HelpUtil.ErrorServerLog("Step 2: Check if the user is in the list of users associated with that stock: "
+//                                           + isUserAssociatedWithStock(stockOverview, userId));
+//                           if (!isUserAssociatedWithStock(stockOverview, userId)) {
+//                                   // If the user is not associated, add the user to the stock
+//                                   HelpUtil.ErrorServerLog("If the user is not associated, add the user to the stock");
+//                                   User user = userRepository.findByUsername(userId)
+//                                                   .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//                                   stockOverview.getUsers().add(user);
+//
+//                                   // Update the StockOverview (and cascade the update to associated users)
+//                                   HelpUtil.ErrorServerLog("Update the StockOverview (and cascade the update to associated users)");
+//                                   stockOverviewRepository.save(stockOverview);
+//
+//                                   // Also update the User entity to maintain the bidirectional relationship
+//                                   HelpUtil.ErrorServerLog("Also update the User entity to maintain the bidirectional relationship");
+//                                   user.getStockOverviews().add(stockOverview);
+//                                   userRepository.save(user);
+//                           }
+//                   } else {
+//                           // Step 3: If the stock does not exist, you might handle it accordingly
+//                           HelpUtil.ErrorFromServerToClint("Step 3: If the stock does not exist, you might handle it accordingly");
+//                           try {
+//                                   // HelpUtil.ErrorServerLog("getStockFunctionResponseValue go online to get data:
+//                                   // " + symbol);
+//                                   result = OVERVIEW(symbol);
+//                                   if ((result == null) || result.equals("null") || (result.length() == 0)) {
+//                                           HelpUtil.ErrorServerLog("api call result is null");
+//                                           return HelpUtil.ErrorFromServerToClint("api call result is null");
+//                                   }
+//
+//                                   try {
+//                                           ObjectMapper objectMapper = new ObjectMapper();
+//                                           JsonNode jsonNode = objectMapper.readTree(result);
+//
+//                                           // make sure it is not a 25/day over run information
+//                                           // Get the first entry in the JSON object
+//                                           if (jsonNode.isObject() && jsonNode.fields().hasNext()) {
+//                                                   // Get the first entry (key-value pair)
+//                                                   java.util.Map.Entry<String, JsonNode> entry = jsonNode.fields().next();
+//                                                   String firstKey = entry.getKey();
+//                                                   String firstValue = entry.getValue().asText();
+//
+//                                                   // Print the first key and value
+//                                                   HelpUtil.ErrorServerLog("First Key: " + firstKey);
+//                                                   HelpUtil.ErrorServerLog("First Value: " + firstValue);
+//                                                   if (firstKey.equals("Information")) {
+//                                                           HelpUtil.ErrorServerLog("getStockFunctionResponseValue get online result: " + result);
+//                                                           return HelpUtil.ErrorFromServerToClint("api call result: " + result);
+//                                                   }
+//                                           } else {
+//                                                   return HelpUtil.ErrorFromServerToClint("JSON object is empty.");
+//                                           }
+//                                   } catch (Exception e) {
+//                                           HelpUtil.ErrorServerLog("exception message: " + e.getMessage() + ", cause: " + e.getCause());
+//                                           return HelpUtil.ErrorFromServerToClint(
+//                                                           "exception message: " + e.getMessage() + ", cause: " + e.getCause());
+//                                   }
+//
+//                                   // HelpUtil.ErrorServerLog("before saveApiResult userId, result: " + userId +",
+//                                   // result: "+result);
+//                                   saveApiResultToDB(userId, result);
+//                           } catch (Exception e) {
+//                                   // TODO Auto-generated catch block
+//                                   return HelpUtil.ErrorFromServerToClint(
+//                                                   "exception message: " + e.getMessage() + ", cause: " + e.getCause());
+//                           }
+//                   }
+//           } else
+             if (functionName.equals("selectionName")) {
+                     HelpUtil.ErrorServerLog("getStockFunctionResponseValue input symbol: " + symbol + ", functionName: " + functionName + ", userId: " + userId + ", selectionName: " + selectionName);
+//                     Optional<ColumnSelection> optionalColumnSelection = columnSelectionRepository.findByName(result);
+//                     HelpUtil.ErrorServerLog(
+//                                     "Step 1: Check if the stock exists in the database: " + optionalColumnSelection.isPresent());
+//                     if (optionalColumnSelection.isPresent()) {
+//                             ColumnSelection columnSelection = optionalColumnSelection.get();
+//
+//                             // Step 2: Check if the user is in the list of users associated with that stock
+//                             HelpUtil.ErrorServerLog("Step 2: Check if the user is in the list of users associated with that stock: "
+//                                             + isUserAssociatedWithSelection(columnSelection, userId));
+//                             if (!isUserAssociatedWithSelection(columnSelection, userId)) {
+//                                     // If the user is not associated, add the user to the stock
+//                                     HelpUtil.ErrorServerLog("If the user is not associated, add the user to the stock");
+//                                     User user = userRepository.findByUsername(userId)
+//                                                     .orElseThrow(() -> new IllegalArgumentException("User not found"));
+//                                     columnSelection.getUsers().add(user);
+//
+//                                     // Update the StockOverview (and cascade the update to associated users)
+//                                     HelpUtil.ErrorServerLog("Update the StockOverview (and cascade the update to associated users)");
+//                                     columnSelectionRepository.save(columnSelection);
+//
+//                                     // Also update the User entity to maintain the bidirectional relationship
+//                                     HelpUtil.ErrorServerLog("Also update the User entity to maintain the bidirectional relationship");
+////                                   user.getStockOverviews().add(columnSelection);
+////                                   userRepository.save(user);
+//                             }
+//                     } else {
+//                             // Step 3: If the stock does not exist, you might handle it accordingly
+//                             HelpUtil.ErrorFromServerToClint("Step 3: If the stock does not exist, you might handle it accordingly");
+//                             try {
+//                                     // HelpUtil.ErrorServerLog("getStockFunctionResponseValue go online to get data:
+//                                     // " + symbol);
+////                                   result = OVERVIEW(symbol);
+////                                   if ((result == null) || result.equals("null") || (result.length() == 0)) {
+////                                           HelpUtil.ErrorServerLog("api call result is null");
+////                                           return HelpUtil.ErrorFromServerToClint("api call result is null");
+////                                   }
+//
+//                                     try {
+//                                             ObjectMapper objectMapper = new ObjectMapper();
+//                                             JsonNode jsonNode = objectMapper.readTree(result);
+//
+//                                             // make sure it is not a 25/day over run information
+//                                             // Get the first entry in the JSON object
+//                                             if (jsonNode.isObject() && jsonNode.fields().hasNext()) {
+//                                                     // Get the first entry (key-value pair)
+//                                                     java.util.Map.Entry<String, JsonNode> entry = jsonNode.fields().next();
+//                                                     String firstKey = entry.getKey();
+//                                                     String firstValue = entry.getValue().asText();
+//
+//                                                     // Print the first key and value
+//                                                     HelpUtil.ErrorServerLog("First Key: " + firstKey);
+//                                                     HelpUtil.ErrorServerLog("First Value: " + firstValue);
+//                                                     if (firstKey.equals("Information")) {
+//                                                             HelpUtil.ErrorServerLog("getStockFunctionResponseValue get online result: " + result);
+//                                                             return HelpUtil.ErrorFromServerToClint("api call result: " + result);
+//                                                     }
+//                                             } else {
+//                                                     return HelpUtil.ErrorFromServerToClint("JSON object is empty.");
+//                                             }
+//                                     } catch (Exception e) {
+//                                             HelpUtil.ErrorServerLog("exception message: " + e.getMessage() + ", cause: " + e.getCause());
+//                                             return HelpUtil.ErrorFromServerToClint(
+//                                                             "exception message: " + e.getMessage() + ", cause: " + e.getCause());
+//                                     }
+//
+//                                     // HelpUtil.ErrorServerLog("before saveApiResult userId, result: " + userId +",
+//                                     // result: "+result);
+//                                     saveApiResultToDB(userId, result);
+//                             } catch (Exception e) {
+//                                     // TODO Auto-generated catch block
+//                                     return HelpUtil.ErrorFromServerToClint(
+//                                                     "exception message: " + e.getMessage() + ", cause: " + e.getCause());
+//                             }
+//                     }
+             } else
+                     result = HelpUtil.ErrorFromServerToClint("functionName: " + functionName + " unknow");
+
+             HelpUtil.ErrorServerLog("getStockFunctionResponseValue result");
+
+             // load all symbol by id
+             HelpUtil.ErrorFromServerToClint("load all symbol by user id");
+             User user = userRepository.findByUsername(userId)
+                             .orElseThrow(() -> new IllegalArgumentException("User not found"));
+             List<StockOverview> userStocks = user.getStockOverviews();
+             HelpUtil.ErrorServerLog("userStocks size: " + userStocks.size());
+             for (int i = 0; i < userStocks.size(); i++) {
+                     HelpUtil.ErrorServerLog("stock: " + userStocks.get(i).getSymbol());
+             }
+
+             ObjectMapper objectMapper = new ObjectMapper();
+             try {
+                     result = objectMapper.writeValueAsString(userStocks);
+                     // HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from
+                     // db: " + result);
+             } catch (JsonProcessingException e) {
+                     result = HelpUtil
+                                     .ErrorFromServerToClint("bad db list StockOverview convert result exception message, cause: "
+                                                     + e.getMessage() + " " + e.getCause());
+             }
+
+             return result;
+     }
 
 	private boolean saveApiResultToDB(String userName, String jsonString) {
 		HelpUtil.ErrorServerLog("in saveApiResult userName: " + userName);

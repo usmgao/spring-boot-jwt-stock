@@ -40,16 +40,12 @@ const ColumnSelector = ({
   const saveSelection = async () => {
     try {
       // Make a request to your backend to save the selection
-      console.log(
-        "ColumnSelector::saveSelection:selectionName: " + selectionName
-      );
-      console.log(
-        "ColumnSelector::saveSelection:tempSelectedColumns: " +
-          tempSelectedColumns
-      );
+      console.log("selectionName: " + selectionName);
+      console.log("tempSelectedColumns: " + tempSelectedColumns);
       console.log("ColumnSelector::saveSelection:userId: " + userId);
       const functionName = "selectionName";
-      const backendUrl = `http://localhost:8080/stock?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
+      //const     backendUrl = `http://localhost:8080/stock?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
+      const backendUrl = `http://localhost:8080/selection?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
       try {
         const response = await fetch(backendUrl);
 
@@ -61,12 +57,12 @@ const ColumnSelector = ({
         console.error("Error fetching saved selectionName: ", error);
       }
 
-      await axios.post("/api/save-selection", {
-        name: selectionName,
-        columns: tempSelectedColumns,
-      });
-      // Fetch the updated list of saved selections
-      fetchSavedSelections();
+      // await axios.post("/api/save-selection", {
+      //   name: selectionName,
+      //   columns: tempSelectedColumns,
+      // });
+      // // Fetch the updated list of saved selections
+      // fetchSavedSelections();
     } catch (error) {
       console.error("Error saving selection:", error);
     }
