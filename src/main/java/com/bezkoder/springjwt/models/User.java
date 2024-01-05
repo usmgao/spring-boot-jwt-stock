@@ -47,9 +47,8 @@ public class User {
 	@ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
 	private List<StockOverview> stockOverviews = new ArrayList<>();
 
-
 	@JsonManagedReference
-	@ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
+	@ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
 	private Set<ColumnSelection> columnSelections = new HashSet<>();
 
 	public User() {

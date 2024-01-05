@@ -10,6 +10,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -31,7 +32,7 @@ public class ColumnSelection {
 	@Size(max = 120)
 	private String columnsSelectionName;
 
-	@ManyToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 	@JoinTable(name = "columnselection_stockoverviewcolumn", joinColumns = @JoinColumn(name = "columnselection_id"), inverseJoinColumns = @JoinColumn(name = "stockoverviewcolumn_id"))
 	private List<StockOverviewColumn> columns = new ArrayList<>();
 

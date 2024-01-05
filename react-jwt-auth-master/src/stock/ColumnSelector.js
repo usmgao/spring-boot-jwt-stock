@@ -44,10 +44,11 @@ const ColumnSelector = ({
       console.log("tempSelectedColumns: " + tempSelectedColumns);
       console.log("ColumnSelector::saveSelection:userId: " + userId);
       const functionName = "selectionName";
-      //const     backendUrl = `http://localhost:8080/stock?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
+      const stockBackendUrl = `http://localhost:8080/stock?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
       const backendUrl = `http://localhost:8080/selection?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
       try {
-        const response = await fetch(backendUrl);
+        console.log("stockBackendUrl: " + stockBackendUrl);
+        const response = await fetch(stockBackendUrl);
 
         if (!response.ok) {
           console.log(`HTTP error! Status: ${response.status}`);
@@ -56,6 +57,18 @@ const ColumnSelector = ({
       } catch (error) {
         console.error("Error fetching saved selectionName: ", error);
       }
+
+      // try {
+      //   console.log("backendUrl: " + backendUrl);
+      //   const response = await fetch(backendUrl);
+
+      //   if (!response.ok) {
+      //     console.log(`HTTP error! Status: ${response.status}`);
+      //     throw new Error(`HTTP error! Status: ${response.status}`);
+      //   }
+      // } catch (error) {
+      //   console.error("Error fetching saved selectionName: ", error);
+      // }
 
       // await axios.post("/api/save-selection", {
       //   name: selectionName,
