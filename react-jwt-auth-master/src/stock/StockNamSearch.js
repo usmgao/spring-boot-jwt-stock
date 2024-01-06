@@ -52,7 +52,7 @@ const StockNamSearch = ({ onSearch }) => {
       "StockNamSearch::handleAddStock: Adding stock with symbol:",
       symbol
     );
-    //setIsVisible(false); // Set visibility to false when adding stock
+    setIsVisible(false); // Set visibility to false when adding stock
   };
 
   if (!isVisible) {

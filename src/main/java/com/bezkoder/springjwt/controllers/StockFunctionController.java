@@ -250,6 +250,39 @@ public class StockFunctionController {
 		return columnSelection.getUsers().stream().anyMatch(user -> user.getUsername().equals(userName));
 	}
 
+	@GetMapping("/loadselections")
+	public String getStockOverviewSelections(@RequestParam String userId) {
+		return getColumnsForUser();
+	}
+	
+	private String getColumnsForUser() {
+		List<ColumnSelection> columnSelections = columnSelectionRepository.findAll();
+		//HelpUtil.ErrorServerLog("getStockOverviewSelections::columnSelections: " + columnSelections);
+    	if(columnSelections == null)
+    		return null;
+    	
+//    	//HelpUtil.ErrorServerLog("columnSelections suze: "+columnSelections.size());
+//    	for(ColumnSelection c : columnSelections) {
+//    		HelpUtil.ErrorServerLog("getStockOverviewSelections::c: "+c);
+//    	}
+    	
+    	String result = "init value";
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			result = objectMapper.writeValueAsString(columnSelections);
+			HelpUtil.ErrorServerLog("*********** getColumnsForUser objectMapper result: "+result);
+			// HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from
+			// db: " + result);
+		} catch (JsonProcessingException e) {
+			result = HelpUtil
+					.ErrorFromServerToClint("bad db list StockOverview convert result exception message, cause: "
+							+ e.getMessage() + " " + e.getCause());
+		}
+
+    	
+		return result;
+	}
+	
 	@GetMapping("/stock")
 	@Transactional
 	public String getStockFunctionResponseValue(@RequestParam String symbol, @RequestParam String functionName,
@@ -352,17 +385,28 @@ public class StockFunctionController {
 			HelpUtil.ErrorServerLog("========= from /selection ======== " + LocalDateTime.now());
 			HelpUtil.ErrorServerLog("getStockFunctionResponseValue input selection: " + symbol + ", functionName: "
 					+ functionName + ", userId: " + userId + ", selectionName: " + selectionName);
-			// result = HelpUtil.ErrorFromServerToClint("initial default value: null");
+			 result = HelpUtil.ErrorFromServerToClint("initial default value: null");
 
 			// return HelpUtil.ErrorFromServerToClint("input selections testing");
 			result = selectionProcess(symbol, functionName, userId, selectionName);
+		} else if (functionName.equals("loadSelection")) {
+			HelpUtil.ErrorServerLog("functionName=loadSelection; input selection: " + symbol + "; functionName: "
+					+ functionName + "; userId: " + userId);
+			HelpUtil.ErrorServerLog("========= from /loadSelection ======== " + LocalDateTime.now());
+			HelpUtil.ErrorServerLog("getStockFunctionResponseValue input selection: " + symbol + ", functionName: "
+					+ functionName + ", userId: " + userId + ", selectionName: " + selectionName);
+			// result = HelpUtil.ErrorFromServerToClint("initial default value: null");
+
+			// return HelpUtil.ErrorFromServerToClint("input selections testing");
+			result = getColumnsForUser();	
+			HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue::loadSelection:result: "+result);
 		} else
 			result = HelpUtil.ErrorFromServerToClint("functionName: " + functionName + " unknow");
 
-		HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue result: "+result);
+		//HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue result: "+result);
 
 		// load all symbol by id
-		HelpUtil.ErrorServerLog("load all symbol by user id");
+		//HelpUtil.ErrorServerLog("load all symbol by user id");
 		User user = userRepository.findByUsername(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		List<StockOverview> userStocks = user.getStockOverviews();
@@ -383,6 +427,7 @@ public class StockFunctionController {
 							+ e.getMessage() + " " + e.getCause());
 		}
 
+		HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue::last:result: "+result);
 		return result;
 	}
 
@@ -477,10 +522,10 @@ public class StockFunctionController {
 				+ functionName + ", userId: " + userId + ", selectionName: " + selectionName);
 		String result = selectionProcess(selection, functionName, userId, selectionName);
 		
-		HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue result: "+result);
+		//HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue result: "+result);
 
 		// load all symbol by id
-		HelpUtil.ErrorServerLog("load all symbol by user id");
+		//HelpUtil.ErrorServerLog("load all symbol by user id");
 		User user = userRepository.findByUsername(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		List<StockOverview> userStocks = user.getStockOverviews();

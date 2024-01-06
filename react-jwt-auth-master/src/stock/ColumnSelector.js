@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import axios from "axios"; // Import Axios for making HTTP requests
+import axios from "axios";
 
-import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap styles
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const ColumnSelector = ({
   userId,
@@ -14,38 +14,77 @@ const ColumnSelector = ({
 }) => {
   const [tempSelectedColumns, setTempSelectedColumns] =
     useState(selectedColumns);
-  const [selectionName, setSelectionName] = useState(""); // New state for selection name
-  const [savedSelections, setSavedSelections] = useState([]); // State to store saved selections
+  const [selectionName, setSelectionName] = useState("");
+  const [savedSelections, setSavedSelections] = useState([]);
 
   console.log("ColumnSelector::userId: " + userId);
-  useEffect(() => {
-    setTempSelectedColumns(selectedColumns);
-  }, [selectedColumns]);
 
-  useEffect(() => {
-    // Fetch saved selections when the component mounts
-    fetchSavedSelections();
-  }, []);
+  const loadSelection = async (userId) => {
+    const symbol = "loadSelection";
+    const functionName = "loadSelection";
+    const backendUrl = `http://localhost:8080/stock?userId=${userId}&symbol=${symbol}&functionName=${functionName}`;
 
-  const fetchSavedSelections = async () => {
     try {
-      // Make a request to your backend to get saved selections
-      const response = await axios.get("/api/saved-selections");
-      setSavedSelections(response.data);
+      const response = await fetch(backendUrl);
+
+      if (!response.ok) {
+        console.log(`HTTP error! Status: ${response.status}`);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const stockData = await response.json();
+
+      if (Object.prototype.hasOwnProperty.call(stockData, "ErrorFromService")) {
+        const errorValue = stockData.ErrorFromService;
+        // setError(errorValue);
+      } else {
+        // setStockOverviewInfo({ data: stockData });
+      }
     } catch (error) {
-      console.error("Error fetching saved selections:", error);
+      console.error("Error loading stock data:", error);
+      // setError("An unexpected error occurred.");
     }
   };
 
+  useEffect(() => {
+    console.log("======= loadSelection ======");
+    loadSelection(userId);
+
+    // Fetch saved selections when the component mounts
+    console.log("======= fetchSavedSelections ======");
+    const fetchSavedSelections = async () => {
+      try {
+        // Make a request to your backend to get saved selections
+        const response = await axios.get(`/loadselections?userId=${userId}`);
+        setSavedSelections(response.data);
+      } catch (error) {
+        console.error("Error fetching saved selections:", error);
+      }
+    };
+
+    fetchSavedSelections(); // Call the function directly
+  }, [userId]); // Include userId in the dependency array
+
   const saveSelection = async () => {
     try {
+      // Check if the selection name is already saved
+      const isNameAlreadySaved = savedSelections.some(
+        (selection) => selection.name === selectionName
+      );
+
+      if (isNameAlreadySaved) {
+        console.error("Selection name is already saved.");
+        return;
+      }
+
       // Make a request to your backend to save the selection
       console.log("selectionName: " + selectionName);
       console.log("tempSelectedColumns: " + tempSelectedColumns);
       console.log("ColumnSelector::saveSelection:userId: " + userId);
-      const functionName = "selectionName";
+
+      const functionName = "saveSelection";
       const stockBackendUrl = `http://localhost:8080/stock?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
-      const backendUrl = `http://localhost:8080/selection?userId=${userId}&symbol=${tempSelectedColumns}&functionName=${functionName}&selectionName=${selectionName}`;
+
       try {
         console.log("stockBackendUrl: " + stockBackendUrl);
         const response = await fetch(stockBackendUrl);
@@ -55,27 +94,8 @@ const ColumnSelector = ({
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
       } catch (error) {
-        console.error("Error fetching saved selectionName: ", error);
+        console.error("Error saving selectionName: ", error);
       }
-
-      // try {
-      //   console.log("backendUrl: " + backendUrl);
-      //   const response = await fetch(backendUrl);
-
-      //   if (!response.ok) {
-      //     console.log(`HTTP error! Status: ${response.status}`);
-      //     throw new Error(`HTTP error! Status: ${response.status}`);
-      //   }
-      // } catch (error) {
-      //   console.error("Error fetching saved selectionName: ", error);
-      // }
-
-      // await axios.post("/api/save-selection", {
-      //   name: selectionName,
-      //   columns: tempSelectedColumns,
-      // });
-      // // Fetch the updated list of saved selections
-      // fetchSavedSelections();
     } catch (error) {
       console.error("Error saving selection:", error);
     }
