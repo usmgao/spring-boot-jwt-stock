@@ -5,6 +5,12 @@ import PropTypes from "prop-types";
 const StockNamSearch = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [isVisible, setIsVisible] = useState(true); // State to manage visibility
+
+  const matchStock = (stock, term) => {
+    const lowerCaseTerm = term.toLowerCase();
+    return stock.symbol.toLowerCase().startsWith(lowerCaseTerm);
+  };
 
   useEffect(() => {
     const fetchSearchResults = async () => {
@@ -15,7 +21,6 @@ const StockNamSearch = ({ onSearch }) => {
         const filteredResults = response.data.filter((stock) =>
           matchStock(stock, searchTerm)
         );
-        //console.log("filteredResults: " + filteredResults);
         setSearchResults(filteredResults);
       } catch (error) {
         console.error("Error searching stocks:", error);
@@ -38,23 +43,26 @@ const StockNamSearch = ({ onSearch }) => {
 
   const handleSelectStock = (selectedStock) => {
     setSearchTerm(selectedStock.symbol);
-    setSearchResults([]); // Clear results after selecting a stock
+    setSearchResults([]);
     onSearch(selectedStock.symbol);
   };
 
-  // Function to check if a stock symbol starts with the user-entered term
-  const matchStock = (stock, term) => {
-    const lowerCaseTerm = term.toLowerCase();
-    return stock.symbol.toLowerCase().startsWith(lowerCaseTerm);
-  };
-
   const handleAddStock = (symbol) => {
-    // You can implement the logic to delete the stock with the given symbol
     console.log(
       "StockNamSearch::handleAddStock: Adding stock with symbol:",
       symbol
     );
+    //setIsVisible(false); // Set visibility to false when adding stock
   };
+
+  if (!isVisible) {
+    return (
+      <div>
+        <h5>Select Stock: </h5>
+        <input type="text" value={searchTerm} onChange={handleInputChange} />
+      </div>
+    );
+  }
 
   return (
     <div>
