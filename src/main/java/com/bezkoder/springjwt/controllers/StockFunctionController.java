@@ -254,23 +254,24 @@ public class StockFunctionController {
 	public String getStockOverviewSelections(@RequestParam String userId) {
 		return getColumnsForUser();
 	}
-	
+
 	private String getColumnsForUser() {
 		List<ColumnSelection> columnSelections = columnSelectionRepository.findAll();
-		//HelpUtil.ErrorServerLog("getStockOverviewSelections::columnSelections: " + columnSelections);
-    	if(columnSelections == null)
-    		return null;
-    	
+		// HelpUtil.ErrorServerLog("getStockOverviewSelections::columnSelections: " +
+		// columnSelections);
+		if (columnSelections == null)
+			return null;
+
 //    	//HelpUtil.ErrorServerLog("columnSelections suze: "+columnSelections.size());
 //    	for(ColumnSelection c : columnSelections) {
 //    		HelpUtil.ErrorServerLog("getStockOverviewSelections::c: "+c);
 //    	}
-    	
-    	String result = "init value";
+
+		String result = "init value";
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			result = objectMapper.writeValueAsString(columnSelections);
-			HelpUtil.ErrorServerLog("*********** getColumnsForUser objectMapper result: "+result);
+			HelpUtil.ErrorServerLog("*********** getColumnsForUser objectMapper result: " + result);
 			// HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from
 			// db: " + result);
 		} catch (JsonProcessingException e) {
@@ -279,10 +280,9 @@ public class StockFunctionController {
 							+ e.getMessage() + " " + e.getCause());
 		}
 
-    	
 		return result;
 	}
-	
+
 	@GetMapping("/stock")
 	@Transactional
 	public String getStockFunctionResponseValue(@RequestParam String symbol, @RequestParam String functionName,
@@ -379,47 +379,39 @@ public class StockFunctionController {
 							"exception message: " + e.getMessage() + ", cause: " + e.getCause());
 				}
 			}
-		} else if (functionName.equals("selectionName")) {
-//			HelpUtil.ErrorServerLog("functionName=selectionName; input selection: " + symbol + "; functionName: "
-//					+ functionName + "; userId: " + userId);
-			HelpUtil.ErrorServerLog("========= from /selection ======== " + LocalDateTime.now());
+		} else if (functionName.equals("saveSelection")) {
+			HelpUtil.ErrorServerLog("========= from /saveSelection ======== " + LocalDateTime.now());
 			HelpUtil.ErrorServerLog("getStockFunctionResponseValue input selection: " + symbol + ", functionName: "
 					+ functionName + ", userId: " + userId + ", selectionName: " + selectionName);
-			 result = HelpUtil.ErrorFromServerToClint("initial default value: null");
-
-			// return HelpUtil.ErrorFromServerToClint("input selections testing");
+			result = HelpUtil.ErrorFromServerToClint("initial default value: null");
 			result = selectionProcess(symbol, functionName, userId, selectionName);
 		} else if (functionName.equals("loadSelection")) {
-			HelpUtil.ErrorServerLog("functionName=loadSelection; input selection: " + symbol + "; functionName: "
-					+ functionName + "; userId: " + userId);
 			HelpUtil.ErrorServerLog("========= from /loadSelection ======== " + LocalDateTime.now());
 			HelpUtil.ErrorServerLog("getStockFunctionResponseValue input selection: " + symbol + ", functionName: "
 					+ functionName + ", userId: " + userId + ", selectionName: " + selectionName);
-			// result = HelpUtil.ErrorFromServerToClint("initial default value: null");
-
-			// return HelpUtil.ErrorFromServerToClint("input selections testing");
-			result = getColumnsForUser();	
-			HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue::loadSelection:result: "+result);
+			result = getColumnsForUser();
+			HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue::loadSelection:result: " + result);
 			return result;
 		} else
 			result = HelpUtil.ErrorFromServerToClint("functionName: " + functionName + " unknow");
 
-		//HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue result: "+result);
+		// HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue result:
+		// "+result);
 
 		// load all symbol by id
-		//HelpUtil.ErrorServerLog("load all symbol by user id");
+		// HelpUtil.ErrorServerLog("load all symbol by user id");
 		User user = userRepository.findByUsername(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		List<StockOverview> userStocks = user.getStockOverviews();
-		HelpUtil.ErrorServerLog("userStocks size: " + userStocks.size());
-		for (int i = 0; i < userStocks.size(); i++) {
-			HelpUtil.ErrorServerLog("stock: " + userStocks.get(i).getSymbol());
-		}
+//		HelpUtil.ErrorServerLog("userStocks size: " + userStocks.size());
+//		for (int i = 0; i < userStocks.size(); i++) {
+//			HelpUtil.ErrorServerLog("stock: " + userStocks.get(i).getSymbol());
+//		}
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			result = objectMapper.writeValueAsString(userStocks);
-			//HelpUtil.ErrorServerLog("*********** objectMapper result: "+result);
+			// HelpUtil.ErrorServerLog("*********** objectMapper result: "+result);
 			// HelpUtil.ErrorServerLog("getStockFunctionResponseValue json converted from
 			// db: " + result);
 		} catch (JsonProcessingException e) {
@@ -428,12 +420,13 @@ public class StockFunctionController {
 							+ e.getMessage() + " " + e.getCause());
 		}
 
-		//HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue::last:result: "+result);
+		// HelpUtil.ErrorServerLog("***********
+		// getStockFunctionResponseValue::last:result: "+result);
 		return result;
 	}
 
 	private String selectionProcess(String selection, String functionName, String userId, String selectionName) {
-		HelpUtil.ErrorServerLog("-------------------- selectionProcess ----------------------------");
+		HelpUtil.ErrorServerLog("-------------------- save selectionProcess ----------------------------");
 		String result = HelpUtil.ErrorFromServerToClint("initial default value: null");
 		User user = userRepository.findByUsername(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -442,73 +435,69 @@ public class StockFunctionController {
 			return HelpUtil.ErrorFromServerToClint("input symbol is null, stop further process");
 		}
 
-		if (functionName.equals("selectionName")) {
-			HelpUtil.ErrorServerLog("getStockFunctionResponseValue input symbol: " + selection + ", functionName: "
-					+ functionName + ", userId: " + userId + ", selectionName: " + selectionName);
-			Optional<ColumnSelection> optionalColumnSelection = columnSelectionRepository
-					.findByColumnsSelectionName(selectionName);
-			HelpUtil.ErrorServerLog("findByColumnsSelectionName: " + optionalColumnSelection.isPresent());
-			if (optionalColumnSelection.isPresent()) {
-				ColumnSelection columnSelection = optionalColumnSelection.get();
-				boolean isUserAssociatedWithColumnSelection = isUserAssociatedWithColumnSelection(columnSelection,
-						userId);
-				// Step 2: Check if the user is in the list of users associated with that stock
-				HelpUtil.ErrorServerLog(
-						"Step 2: Check if the user is in the list of users associated with that selection: "
-								+ isUserAssociatedWithColumnSelection);
-				if (!isUserAssociatedWithColumnSelection) {
-					// If the user is not associated, add the user to the stock
-					HelpUtil.ErrorServerLog("If the user is not associated, add the user to the selection");
-					columnSelection.getUsers().add(user);
+		HelpUtil.ErrorServerLog("getStockFunctionResponseValue input symbol: " + selection + ", functionName: "
+				+ functionName + ", userId: " + userId + ", selectionName: " + selectionName);
+		Optional<ColumnSelection> optionalColumnSelection = columnSelectionRepository
+				.findByColumnsSelectionName(selectionName);
+		HelpUtil.ErrorServerLog("findByColumnsSelectionName: " + optionalColumnSelection.isPresent());
+		if (optionalColumnSelection.isPresent()) {
+			ColumnSelection columnSelection = optionalColumnSelection.get();
+			boolean isUserAssociatedWithColumnSelection = isUserAssociatedWithColumnSelection(columnSelection, userId);
+			// Step 2: Check if the user is in the list of users associated with that stock
+			HelpUtil.ErrorServerLog("Step 2: Check if the user is in the list of users associated with that selection: "
+					+ isUserAssociatedWithColumnSelection);
+			if (!isUserAssociatedWithColumnSelection) {
+				// If the user is not associated, add the user to the stock
+				HelpUtil.ErrorServerLog("If the user is not associated, add the user to the selection");
+				columnSelection.getUsers().add(user);
 
-					// Update the StockOverview (and cascade the update to associated users)
-					HelpUtil.ErrorServerLog("Update the ColumnSelection (and cascade the update to associated users)");
-					columnSelectionRepository.save(columnSelection);
+				// Update the StockOverview (and cascade the update to associated users)
+				HelpUtil.ErrorServerLog("Update the ColumnSelection (and cascade the update to associated users)");
+				columnSelectionRepository.save(columnSelection);
 
-					// Also update the User entity to maintain the bidirectional relationship
-					HelpUtil.ErrorServerLog("Also update the User entity to maintain the bidirectional relationship");
-					user.getColumnSelections().add(columnSelection);
-					userRepository.save(user);
-				}
-			} else {
-				try {
-					// Step 3: If the stock does not exist, you might handle it accordingly
-					HelpUtil.ErrorServerLog("Step 3: If the selection does not exist, you might handle it accordingly");
-					// id,Symbol,DividendPerShare,DividendYield,AnalystTargetPrice,DividendDate,ExDividendDate,PERatio,MarketCapitalization,
-					String[] splitString = selection.split(",");
-					HelpUtil.ErrorServerLog("splitString: " + splitString);
-					// List<String> columnList = Arrays.asList(splitString);
-					List<StockOverviewColumn> columns = new ArrayList<>();
-					for (String s : splitString) {
-						HelpUtil.ErrorServerLog("s: " + s);
-						if (s.length() == 0)
-							continue;
-
-						StockOverviewColumn c = new StockOverviewColumn();
-						c.setColumnName(s);
-						columns.add(c);
-					}
-					ColumnSelection cs = new ColumnSelection();
-					cs.setColumns(columns);
-					cs.setColumnsSelectionName(selectionName);
-					HelpUtil.ErrorServerLog("user: " + user);
-					Set<User> users = new HashSet<>();
-					users.add(user);
-					cs.setUsers(users);
-					HelpUtil.ErrorServerLog("=== before savedCS cs: " + cs);
-					ColumnSelection savedCS = columnSelectionRepository.save(cs);
-					HelpUtil.ErrorServerLog("-------------- savedCS: " + savedCS);
-					
-					user.getColumnSelections().add(savedCS);					
-					userRepository.save(user);					
-				} catch (Exception e) {
-					result = "????????????????????????????????????? save selection exception message: " + e.getMessage() + ", cause: " + e.getCause();
-					HelpUtil.ErrorServerLog(result);
-					HelpUtil.ErrorFromServerToClint(result);
-				}
+				// Also update the User entity to maintain the bidirectional relationship
+				HelpUtil.ErrorServerLog("Also update the User entity to maintain the bidirectional relationship");
+				user.getColumnSelections().add(columnSelection);
+				userRepository.save(user);
 			}
-		} else
-			result = HelpUtil.ErrorFromServerToClint("functionName: " + functionName + " unknow");
+		} else {
+			try {
+				// Step 3: If the stock does not exist, you might handle it accordingly
+				HelpUtil.ErrorServerLog("Step 3: If the selection does not exist, you might handle it accordingly");
+				// id,Symbol,DividendPerShare,DividendYield,AnalystTargetPrice,DividendDate,ExDividendDate,PERatio,MarketCapitalization,
+				String[] splitString = selection.split(",");
+				HelpUtil.ErrorServerLog("splitString: " + splitString);
+				// List<String> columnList = Arrays.asList(splitString);
+				List<StockOverviewColumn> columns = new ArrayList<>();
+				for (String s : splitString) {
+					HelpUtil.ErrorServerLog("s: " + s);
+					if (s.length() == 0)
+						continue;
+
+					StockOverviewColumn c = new StockOverviewColumn();
+					c.setColumnName(s);
+					columns.add(c);
+				}
+				ColumnSelection cs = new ColumnSelection();
+				cs.setColumns(columns);
+				cs.setColumnsSelectionName(selectionName);
+				HelpUtil.ErrorServerLog("user: " + user);
+				Set<User> users = new HashSet<>();
+				users.add(user);
+				cs.setUsers(users);
+				HelpUtil.ErrorServerLog("=== before savedCS cs: " + cs);
+				ColumnSelection savedCS = columnSelectionRepository.save(cs);
+				HelpUtil.ErrorServerLog("-------------- savedCS: " + savedCS);
+
+				user.getColumnSelections().add(savedCS);
+				userRepository.save(user);
+			} catch (Exception e) {
+				result = "????????????????????????????????????? save selection exception message: " + e.getMessage()
+						+ ", cause: " + e.getCause();
+				HelpUtil.ErrorServerLog(result);
+				HelpUtil.ErrorFromServerToClint(result);
+			}
+		}
 
 		return result;
 	}
@@ -522,11 +511,12 @@ public class StockFunctionController {
 		HelpUtil.ErrorServerLog("getStockFunctionResponseValue input selection: " + selection + ", functionName: "
 				+ functionName + ", userId: " + userId + ", selectionName: " + selectionName);
 		String result = selectionProcess(selection, functionName, userId, selectionName);
-		
-		//HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue result: "+result);
+
+		// HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue result:
+		// "+result);
 
 		// load all symbol by id
-		//HelpUtil.ErrorServerLog("load all symbol by user id");
+		// HelpUtil.ErrorServerLog("load all symbol by user id");
 		User user = userRepository.findByUsername(userId)
 				.orElseThrow(() -> new IllegalArgumentException("User not found"));
 		List<StockOverview> userStocks = user.getStockOverviews();
@@ -570,7 +560,7 @@ public class StockFunctionController {
 
 		return result;
 	}
-	
+
 	private boolean saveApiResultToDB(String userName, String jsonString) {
 		HelpUtil.ErrorServerLog("in saveApiResult userName: " + userName);
 
