@@ -14,12 +14,12 @@ const StockOverview = ({ userId, symbol }) => {
     "id",
     "Symbol",
     "DividendPerShare",
-    "DividendYield",
-    "AnalystTargetPrice",
-    "DividendDate",
-    "ExDividendDate",
-    "PERatio",
-    "MarketCapitalization",
+    // "DividendYield",
+    // "AnalystTargetPrice",
+    // "DividendDate",
+    // "ExDividendDate",
+    // "PERatio",
+    // "MarketCapitalization",
   ]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [error, setError] = useState(null);

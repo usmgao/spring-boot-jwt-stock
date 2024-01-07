@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 
@@ -16,8 +15,10 @@ const ColumnSelector = ({
     useState(selectedColumns);
   const [selectionName, setSelectionName] = useState("");
   const [savedSelections, setSavedSelections] = useState([]);
+  const [error, setError] = useState(null);
 
   console.log("ColumnSelector::userId: " + userId);
+  console.log("ColumnSelector::selectedColumns: " + selectedColumns);
 
   const loadSelection = async (userId) => {
     const symbol = "loadSelection";
@@ -32,37 +33,23 @@ const ColumnSelector = ({
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      const stockData = await response.json();
+      const columnsData = await response.json();
+      console.log("loadSelection: ", JSON.stringify(columnsData, null, 2));
 
-      if (Object.prototype.hasOwnProperty.call(stockData, "ErrorFromService")) {
-        const errorValue = stockData.ErrorFromService;
-        // setError(errorValue);
+      if (Array.isArray(columnsData)) {
+        setSavedSelections(columnsData);
       } else {
-        // setStockOverviewInfo({ data: stockData });
+        console.error("Invalid data format received from the server.");
       }
     } catch (error) {
       console.error("Error loading stock data:", error);
-      // setError("An unexpected error occurred.");
+      setError("An unexpected error occurred.");
     }
   };
 
   useEffect(() => {
     console.log("======= loadSelection ======");
     loadSelection(userId);
-
-    // Fetch saved selections when the component mounts
-    console.log("======= fetchSavedSelections ======");
-    const fetchSavedSelections = async () => {
-      try {
-        // Make a request to your backend to get saved selections
-        const response = await axios.get(`/loadselections?userId=${userId}`);
-        setSavedSelections(response.data);
-      } catch (error) {
-        console.error("Error fetching saved selections:", error);
-      }
-    };
-
-    fetchSavedSelections(); // Call the function directly
   }, [userId]); // Include userId in the dependency array
 
   const saveSelection = async () => {

@@ -400,6 +400,7 @@ public class StockFunctionController {
 			// return HelpUtil.ErrorFromServerToClint("input selections testing");
 			result = getColumnsForUser();	
 			HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue::loadSelection:result: "+result);
+			return result;
 		} else
 			result = HelpUtil.ErrorFromServerToClint("functionName: " + functionName + " unknow");
 
@@ -427,7 +428,7 @@ public class StockFunctionController {
 							+ e.getMessage() + " " + e.getCause());
 		}
 
-		HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue::last:result: "+result);
+		//HelpUtil.ErrorServerLog("*********** getStockFunctionResponseValue::last:result: "+result);
 		return result;
 	}
 
